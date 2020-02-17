@@ -1,0 +1,10 @@
+<mat-card *ngIf="todoList$ | async as todos">
+    <mat-card-subtitle>{{ todos.length }} tasks</mat-card-subtitle>
+    <mat-nav-list>
+        <a mat-list-item *ngFor="let todo of todos">
+            <mat-checkbox disabled [checked]="todo.state==='DONE'"></mat-checkbox>
+            {{ todo.title }}
+            <div *ngIf="todo.creationDate" class="date">[created on {{ todo.creationDate | date:'longDate' }}]</div>
+        </a>
+    </mat-nav-list>
+</mat-card>
