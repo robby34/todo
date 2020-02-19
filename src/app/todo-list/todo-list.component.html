@@ -1,0 +1,6 @@
+<p>I have {{ todoList.length }} tasks in my todo-list :</p>
+<ul>
+    <div *ngFor="let todo of todoList">
+        <li>{{ todo.summary }} ({{ todo.description }})</li>
+    </div>
+</ul>
