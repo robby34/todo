@@ -1,0 +1,9 @@
+.mat-list-item .mat-checkbox {
+    margin-right: 1em;
+}
+
+.mat-list-item div.date {
+    margin-left: 1em;
+    font-style: italic;
+    font-size: small;
+}

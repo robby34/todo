@@ -1,6 +1,10 @@
-<p>I have {{ todoList.length }} tasks in my todo-list :</p>
-<ul>
-    <div *ngFor="let todo of todoList">
-        <li>{{ todo.summary }} ({{ todo.description }})</li>
-    </div>
-</ul>
+<mat-card>
+    <mat-card-subtitle>{{ todoList.length }} tasks</mat-card-subtitle>
+    <mat-nav-list>
+        <a mat-list-item *ngFor="let todo of todoList">
+            <mat-checkbox disabled [checked]="todo.state==='DONE'"></mat-checkbox>
+            {{ todo.title }}
+            <div class="date">[created on {{ todo.creationDate | date:'longDate' }}]</div>
+        </a>
+    </mat-nav-list>
+</mat-card>

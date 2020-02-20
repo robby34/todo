@@ -1,5 +1,8 @@
 export interface Todo {
     id: number,
-    summary: string,
-    description: string
+    title: string,
+    description: string,
+    creationDate: Date,
+    dueDate?: Date,
+    state: 'DONE' | 'UNDONE'
 }
