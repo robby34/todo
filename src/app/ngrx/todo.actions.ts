@@ -1,3 +1,6 @@
-import { createAction } from '@ngrx/store';
+import { createAction, props } from '@ngrx/store';
+import { Todo } from '../model/todo.model';
 
-export const getTodoList = createAction('[Todo] - Get Todo list');
+// "Load Todo list" actions
+export const getTodoList = createAction('[Todo] - Load Todo list');
+export const getTodoListSuccess = createAction('[Todo] - Load Todo list success', props<{ payload: Array<Todo> }>());
