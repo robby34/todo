@@ -20,7 +20,7 @@ describe('TodoService', () => {
 
   afterAll(() => http.verify());
 
-  it('should return an Observable of 2 Todos', () => {
+  it('should return an Observable when want to list all the Todos', () => {
     const fakeTodoList = [
       {
         id: 0,
@@ -49,9 +49,33 @@ describe('TodoService', () => {
     request.flush(fakeTodoList);
 
     expect(receivedTodoList.length)
-      .withContext('The `list` method should return an array of Todo wrapped in an Observable')
+      .withContext('The subscription to the `list` Observable should send an HTTP request, returning an array of Todo')
       .not.toBe(0);
     expect(receivedTodoList).toEqual(fakeTodoList);
+  });
+
+  it('should return an Observable when want to update a Todo', () => {
+    const modifiedTodo: Todo = {
+      id: 13,
+      title: 'A new task',
+      state: 'UNDONE',
+      description: 'This is the description of the new task',
+      creationDate: new Date()
+    };
+    let responseReceived = false;
+
+    // Call the service
+    todoService.update(modifiedTodo).subscribe(() => responseReceived = true);
+
+    // Assert HTTP request has been called
+    const request: TestRequest = http.expectOne(`${environment.baseUrl}/api/todos/${modifiedTodo.id}`);
+
+    // Resolve the request by returning success (without body)
+    request.flush(null);
+
+    expect(responseReceived)
+      .withContext('The subscription to the `update` Observable should send an HTTP request')
+      .toBeTruthy();
   });
 
 });

@@ -6,24 +6,25 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatListModule } from '@angular/material/list';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
-import { AppState } from '../model/todo.state';
+import { AppState, substractDays } from '../model/todo.state';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Store, Action } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { getTodoListAction } from '../ngrx/todo.actions';
+import { getTodoListAction, toggleCompleteAction } from '../ngrx/todo.actions';
 import { MatSnackBarModule, MatSnackBar, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 import { ErrorSnackbarComponent } from '../error-snackbar/error-snackbar.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
+import { Todo, cloneTodo } from '../model/todo.model';
 
 describe('TodoListComponent', () => {
 
   const initialState = {
     todos: {
       todoList: [
-        { id: 0, title: 'My first task', state: 'DONE', description: 'This is my first Task to do !!!', creationDate: new Date() },
-        { id: 1, title: 'A new task', state: 'UNDONE', description: 'This is the description of the new task', creationDate: new Date() }
+        { id: 0, title: 'My first task', state: 'UNDONE', description: 'This is my first Task to do !!!', creationDate: new Date() },
+        { id: 1, title: 'A new task', state: 'DONE', description: 'This is the description of the new task', creationDate: new Date() }
       ]
     },
     todoError: null
@@ -70,8 +71,6 @@ describe('TodoListComponent', () => {
   });
 
   it('should display the Todos from the Store', () => {
-    expect(fixture.nativeElement.querySelector('mat-card-subtitle').textContent).toContain('2');
-
     const items = fixture.nativeElement.querySelectorAll('.mat-list-item');
     expect(items.length).toBe(2);
 
@@ -84,7 +83,6 @@ describe('TodoListComponent', () => {
     mockStore.setState({ todos: { todoList: [], todoError: null } });
     mockStore.refreshState();
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('mat-card-subtitle').textContent).toContain('0');
     expect(fixture.nativeElement.querySelectorAll('.mat-list-item').length).toBe(0);
 
     // Set a next State having 1 Todo
@@ -97,7 +95,6 @@ describe('TodoListComponent', () => {
     mockStore.setState({ todos: nextState });
     mockStore.refreshState();
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('mat-card-subtitle').textContent).toContain('1');
     expect(fixture.nativeElement.querySelectorAll('.mat-list-item').length).toBe(1);
   });
 
@@ -110,6 +107,61 @@ describe('TodoListComponent', () => {
     // Checks
     const containerElement = TestBed.get(OverlayContainer).getContainerElement().querySelector('snack-bar-container');
     expect(containerElement.textContent).toContain(error.message);
+  });
+
+  it('should dispatch the action toggleCompleteAction when tick a checkbox of an UNDONE Todo', () => {
+    const undoneTodo = initialState.todos.todoList[0] as Todo;
+    expect(undoneTodo.state).toBe('UNDONE');
+
+    // Tick the checkbox of the first Todo (which is UNDONE at init)
+    fixture.nativeElement.querySelectorAll('.mat-checkbox-input')[0].click();
+    fixture.detectChanges();
+
+    const clonedTodo = cloneTodo(undoneTodo);
+    clonedTodo.state = 'DONE';
+    expect(mockStore.dispatch).toHaveBeenCalledWith(toggleCompleteAction({ payload: clonedTodo }));
+  });
+
+  it('should dispatch the action toggleCompleteAction when tick a checkbox of an DONE Todo', () => {
+    const undoneTodo = initialState.todos.todoList[1] as Todo;
+    expect(undoneTodo.state).toBe('DONE');
+
+    // Tick the checkbox of the first Todo (which is UNDONE at init)
+    fixture.nativeElement.querySelectorAll('.mat-checkbox-input')[1].click();
+    fixture.detectChanges();
+
+    const clonedTodo = cloneTodo(undoneTodo);
+    clonedTodo.state = 'UNDONE';
+    expect(mockStore.dispatch).toHaveBeenCalledWith(toggleCompleteAction({ payload: clonedTodo }));
+  });
+
+  it('should sort the Todos, first by state (DONE at bottom), second by creation date (most recent first)', () => {
+    const dateToday = new Date();
+    const dateYesterday = substractDays(new Date(), 1);
+    const dateOld = substractDays(new Date(), 100);
+    const dateVeryOld = substractDays(new Date(), 300);
+    const fakeTodoList: Array<Todo> = [
+      { id: 0, title: 'task A', state: 'UNDONE', creationDate: dateYesterday },
+      { id: 1, title: 'task B', state: 'DONE', creationDate: dateVeryOld },
+      { id: 2, title: 'task C', state: 'UNDONE', creationDate: dateYesterday },
+      { id: 3, title: 'task D', state: 'DONE', creationDate: dateOld },
+      { id: 4, title: 'task E', state: 'UNDONE', creationDate: dateToday },
+      { id: 5, title: 'task F', state: 'UNDONE' },
+      { id: 6, title: 'task G', state: 'UNDONE' }
+    ];
+
+    mockStore.setState({ todos: { todoList: fakeTodoList, todoError: null } });
+    mockStore.refreshState();
+    fixture.detectChanges();
+
+    const items = fixture.nativeElement.querySelectorAll('.mat-list-item');
+    expect(items[0].textContent).toContain('task E');
+    expect(items[1].textContent).toContain('task A');
+    expect(items[2].textContent).toContain('task C');
+    expect(items[3].textContent).toContain('task F');
+    expect(items[4].textContent).toContain('task G');
+    expect(items[5].textContent).toContain('task D');
+    expect(items[6].textContent).toContain('task B');
   });
 
 });

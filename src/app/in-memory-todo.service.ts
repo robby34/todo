@@ -21,7 +21,10 @@ export class InMemoryTodoService implements InMemoryDbService {
         description: 'This is the description of the new task',
         creationDate: substractDays(new Date(), 2)
       },
-      { id: 3, title: 'Again a new task', state: 'UNDONE', description: 'This is again a description', creationDate: new Date() },
+      {
+        id: 3, title: 'Again a new task', state: 'UNDONE', description: 'This is again a description',
+        creationDate: substractDays(new Date(), 1)
+      },
       { id: 4, title: 'Still a new task', state: 'UNDONE', description: 'This is still a description', creationDate: new Date() }
     ];
     return { todos };
