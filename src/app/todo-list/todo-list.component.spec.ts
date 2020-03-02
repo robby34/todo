@@ -75,8 +75,8 @@ describe('TodoListComponent', () => {
     const items = fixture.nativeElement.querySelectorAll('.mat-list-item');
     expect(items.length).toBe(2);
 
-    expect(items[0].textContent).toContain('My first task');
-    expect(items[1].textContent).toContain('A new task');
+    expect(items[0].textContent).toContain('A new task');
+    expect(items[1].textContent).toContain('My first task'); // Todos DONE are displayed at bottom
   });
 
   it('should display new Todos when store is updating', () => {

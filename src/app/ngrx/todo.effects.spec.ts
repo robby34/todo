@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { hot, cold } from 'jasmine-marbles';
 import { Todo } from '../model/todo.model';
-import { getTodoListAction, getTodoListSuccessAction, getTodoListErrorAction } from './todo.actions';
+import { getTodoListAction, getTodoListSuccessAction, todoErrorAction } from './todo.actions';
 import { Observable, of } from 'rxjs';
 import { Action } from '@ngrx/store';
 import { TodoService } from '../todo.service';
@@ -46,14 +46,14 @@ describe('TodoEffects', () => {
             .toBeObservable(expected);
     });
 
-    it('should return a stream with the error action getTodoListErrorAction (containing an error message)', () => {
+    it('should return a stream with the error action todoErrorAction (containing an error message)', () => {
         const error = new Error('Error occurred !!!');
 
         actions$ = hot('-a', { a: getTodoListAction });
         const response = cold('-#|', {}, error);
         todoServiceSpy.list.and.returnValue(response);
 
-        const expected = cold('--b', { b: getTodoListErrorAction(error) });
+        const expected = cold('--b', { b: todoErrorAction(error) });
         expect(effects.loadTodos$)
             .withContext('The error action should be raised after having wait for 10 + 10 frames')
             .toBeObservable(expected);
