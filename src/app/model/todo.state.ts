@@ -2,6 +2,7 @@ import { Todo } from './todo.model';
 
 export interface AppState {
     todoList: Array<Todo>;
+    detailedTodo: Todo;
     todoError: Error;
 }
 

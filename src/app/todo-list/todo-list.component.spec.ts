@@ -11,23 +11,19 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Store, Action } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { getTodoListAction, toggleCompleteAction } from '../ngrx/todo.actions';
-import { MatSnackBarModule, MatSnackBar, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
-import { ErrorSnackbarComponent } from '../error-snackbar/error-snackbar.component';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { OverlayContainer } from '@angular/cdk/overlay';
-import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { Todo, cloneTodo } from '../model/todo.model';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('TodoListComponent', () => {
 
   const initialState = {
     todos: {
-      todoList: [
-        { id: 0, title: 'My first task', state: 'UNDONE', description: 'This is my first Task to do !!!', creationDate: new Date() },
-        { id: 1, title: 'A new task', state: 'DONE', description: 'This is the description of the new task', creationDate: new Date() }
-      ]
-    },
-    todoError: null
+      todoList: null,
+      detailedTodo: null,
+      todoError: null
+    }
   };
   let fixture: ComponentFixture<TodoListComponent>;
   let component: TodoListComponent;
@@ -35,20 +31,15 @@ describe('TodoListComponent', () => {
   const actions$: Observable<Action> = null;
 
   beforeEach(() => {
-    TestBed
-      .configureTestingModule({
-        imports: [BrowserAnimationsModule, MatToolbarModule, MatCardModule, MatCheckboxModule, MatListModule, MatSnackBarModule,
-          HttpClientTestingModule],
-        declarations: [TodoListComponent, ErrorSnackbarComponent],
-        providers: [
-          provideMockStore({ initialState }),
-          provideMockActions(() => actions$),
-          { provide: MAT_SNACK_BAR_DATA }
-        ]
-      })
-      // With Material dialogs and snackers, we create our components dynamically. They are added to the entryComponents of the module.
-      // Then, we should also do it in tests, but entryComponents is not available in tests => so we use overrideModule.
-      .overrideModule(BrowserDynamicTestingModule, { set: { entryComponents: [ErrorSnackbarComponent] } });
+    TestBed.configureTestingModule({
+      imports: [BrowserAnimationsModule, MatToolbarModule, MatCardModule, MatCheckboxModule, MatListModule, MatSnackBarModule,
+        RouterTestingModule, HttpClientTestingModule],
+      declarations: [TodoListComponent],
+      providers: [
+        provideMockStore({ initialState }),
+        provideMockActions(() => actions$)
+      ]
+    });
 
     fixture = TestBed.createComponent(TodoListComponent);
     component = fixture.componentInstance;
@@ -71,6 +62,20 @@ describe('TodoListComponent', () => {
   });
 
   it('should display the Todos from the Store', () => {
+    // Set a State having 2 Todos
+    mockStore.setState({
+      todos: {
+        todoList: [
+          { id: 0, title: 'My first task', state: 'UNDONE', description: 'This is my first Task to do !!!', creationDate: new Date() },
+          { id: 1, title: 'A new task', state: 'DONE', description: 'This is the description of the new task', creationDate: new Date() }
+        ],
+        detailedTodo: null,
+        todoError: null
+      }
+    });
+    mockStore.refreshState();
+    fixture.detectChanges();
+
     const items = fixture.nativeElement.querySelectorAll('.mat-list-item');
     expect(items.length).toBe(2);
 
@@ -80,7 +85,7 @@ describe('TodoListComponent', () => {
 
   it('should display new Todos when store is updating', () => {
     // Set a State having an empty Todo list
-    mockStore.setState({ todos: { todoList: [], todoError: null } });
+    mockStore.setState({ todos: { todoList: [], detailedTodo: null, todoError: null } });
     mockStore.refreshState();
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelectorAll('.mat-list-item').length).toBe(0);
@@ -90,6 +95,7 @@ describe('TodoListComponent', () => {
       todoList: [
         { id: 0, title: 'A lonely task', state: 'UNDONE' }
       ],
+      detailedTodo: null,
       todoError: null
     };
     mockStore.setState({ todos: nextState });
@@ -98,19 +104,21 @@ describe('TodoListComponent', () => {
     expect(fixture.nativeElement.querySelectorAll('.mat-list-item').length).toBe(1);
   });
 
-  it('should display an error notification if todoError is present into the Store', () => {
-    // Set a State having an error
-    const error: Error = new Error('test error message !!!!');
-    mockStore.setState({ todos: { todoList: null, todoError: error } });
+  it('should dispatch the action toggleCompleteAction when tick a checkbox of an UNDONE Todo', () => {
+    // Set a State having 2 Todos
+    const nextState: AppState = {
+      todoList: [
+        { id: 0, title: 'My first task', state: 'UNDONE', description: 'This is my first Task to do !!!', creationDate: new Date() },
+        { id: 1, title: 'A new task', state: 'DONE', description: 'This is the description of the new task', creationDate: new Date() }
+      ],
+      detailedTodo: null,
+      todoError: null
+    };
+    mockStore.setState({ todos: nextState });
     mockStore.refreshState();
     fixture.detectChanges();
-    // Checks
-    const containerElement = TestBed.get(OverlayContainer).getContainerElement().querySelector('snack-bar-container');
-    expect(containerElement.textContent).toContain(error.message);
-  });
 
-  it('should dispatch the action toggleCompleteAction when tick a checkbox of an UNDONE Todo', () => {
-    const undoneTodo = initialState.todos.todoList[0] as Todo;
+    const undoneTodo = nextState.todoList[0] as Todo;
     expect(undoneTodo.state).toBe('UNDONE');
 
     // Tick the checkbox of the first Todo (which is UNDONE at init)
@@ -119,20 +127,33 @@ describe('TodoListComponent', () => {
 
     const clonedTodo = cloneTodo(undoneTodo);
     clonedTodo.state = 'DONE';
-    expect(mockStore.dispatch).toHaveBeenCalledWith(toggleCompleteAction({ payload: clonedTodo }));
+    expect(mockStore.dispatch).toHaveBeenCalledWith(toggleCompleteAction({ todo: clonedTodo }));
   });
 
-  it('should dispatch the action toggleCompleteAction when tick a checkbox of an DONE Todo', () => {
-    const undoneTodo = initialState.todos.todoList[1] as Todo;
-    expect(undoneTodo.state).toBe('DONE');
+  it('should dispatch the action toggleCompleteAction when tick a checkbox of a DONE Todo', () => {
+    // Set a State having 2 Todos
+    const nextState: AppState = {
+      todoList: [
+        { id: 0, title: 'My first task', state: 'UNDONE', description: 'This is my first Task to do !!!', creationDate: new Date() },
+        { id: 1, title: 'A new task', state: 'DONE', description: 'This is the description of the new task', creationDate: new Date() }
+      ],
+      detailedTodo: null,
+      todoError: null
+    };
+    mockStore.setState({ todos: nextState });
+    mockStore.refreshState();
+    fixture.detectChanges();
 
-    // Tick the checkbox of the first Todo (which is UNDONE at init)
+    const doneTodo = nextState.todoList[1] as Todo;
+    expect(doneTodo.state).toBe('DONE');
+
+    // Tick the checkbox of the second Todo (which is DONE at init)
     fixture.nativeElement.querySelectorAll('.mat-checkbox-input')[1].click();
     fixture.detectChanges();
 
-    const clonedTodo = cloneTodo(undoneTodo);
+    const clonedTodo = cloneTodo(doneTodo);
     clonedTodo.state = 'UNDONE';
-    expect(mockStore.dispatch).toHaveBeenCalledWith(toggleCompleteAction({ payload: clonedTodo }));
+    expect(mockStore.dispatch).toHaveBeenCalledWith(toggleCompleteAction({ todo: clonedTodo }));
   });
 
   it('should sort the Todos, first by state (DONE at bottom), second by creation date (most recent first)', () => {
@@ -150,7 +171,7 @@ describe('TodoListComponent', () => {
       { id: 6, title: 'task G', state: 'UNDONE' }
     ];
 
-    mockStore.setState({ todos: { todoList: fakeTodoList, todoError: null } });
+    mockStore.setState({ todos: { todoList: fakeTodoList, detailedTodo: null, todoError: null } });
     mockStore.refreshState();
     fixture.detectChanges();
 

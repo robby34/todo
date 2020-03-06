@@ -78,4 +78,28 @@ describe('TodoService', () => {
       .toBeTruthy();
   });
 
+  it('should return an Observable when want to get a Todo', () => {
+    const fakeTodo: Todo = {
+      id: 0,
+      title: 'My first task',
+      state: 'DONE',
+      description: 'This is my first Task to do !!!',
+      creationDate: new Date()
+    };
+    let receivedTodo: Todo;
+
+    // Call the service
+    todoService.getTodo(2).subscribe((todo: Todo) => receivedTodo = todo);
+
+    // Assert HTTP request has been called
+    const request: TestRequest = http.expectOne(`${environment.baseUrl}/api/todos/2`);
+
+    // Resolve the request by returning the 'fakeTodo'
+    request.flush(fakeTodo);
+
+    expect(receivedTodo)
+      .withContext('The subscription to the `getTodo` Observable should send an HTTP request, returning a Todo')
+      .toEqual(fakeTodo);
+  });
+
 });

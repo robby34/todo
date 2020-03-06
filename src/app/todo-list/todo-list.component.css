@@ -6,9 +6,17 @@
     padding-top: 0px;
 }
 
+.mat-card.todo-list .mat-checkbox {
+    position: absolute;
+    top:13px;
+    left:13px;
+    z-index: 1;
+}
+
 .mat-card.todo-list span.todo-title {
-    margin-left: 1em;
-}.mat-card.todo-list span.todo-creation-date {
+    margin-left: 2em;
+}
+.mat-card.todo-list span.todo-creation-date {
     font-style: italic;
     font-size: small;
     position: absolute;

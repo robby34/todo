@@ -8,9 +8,13 @@ import { MatListModule } from '@angular/material/list';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { AppState } from './model/todo.state';
 import { Store } from '@ngrx/store';
-import { By } from '@angular/platform-browser';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule, MAT_SNACK_BAR_DATA, MatSnackBar } from '@angular/material/snack-bar';
+import { RouterTestingModule } from '@angular/router/testing';
+import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
+import { ErrorSnackbarComponent } from './error-snackbar/error-snackbar.component';
+import { OverlayContainer } from '@angular/cdk/overlay';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('AppComponent', () => {
 
@@ -18,32 +22,26 @@ describe('AppComponent', () => {
   let mockStore: MockStore<{ todos: AppState }>;
   const initialState = {
     todos: {
-      todoList: [
-        {
-          id: 0,
-          title: 'My first task',
-          state: 'DONE',
-          description: 'This is my first Task to do !!!',
-          creationDate: new Date()
-        },
-        {
-          id: 1,
-          title: 'A new task',
-          state: 'UNDONE',
-          description: 'This is the description of the new task',
-          creationDate: new Date()
-        }
-      ]
-    },
-    todoError: null
+      todoList: [],
+      detailedTodo: null,
+      todoError: null
+    }
   };
 
   beforeEach(() => {
-    TestBed.configureTestingModule({
-      imports: [MatToolbarModule, MatCardModule, MatCheckboxModule, MatListModule, MatSnackBarModule, HttpClientTestingModule],
-      declarations: [AppComponent, TodoListComponent],
-      providers: [provideMockStore({ initialState })]
-    });
+    TestBed
+      .configureTestingModule({
+        imports: [BrowserAnimationsModule, MatToolbarModule, MatCardModule, MatCheckboxModule, MatListModule, MatSnackBarModule,
+          RouterTestingModule, HttpClientTestingModule],
+        declarations: [AppComponent, TodoListComponent, ErrorSnackbarComponent],
+        providers: [
+          provideMockStore({ initialState }),
+          { provide: MAT_SNACK_BAR_DATA }
+        ]
+      })
+      // With Material dialogs and snackers, we create our components dynamically. They are added to the entryComponents of the module.
+      // Then, we should also do it in tests, but entryComponents is not available in tests => so we use overrideModule.
+      .overrideModule(BrowserDynamicTestingModule, { set: { entryComponents: [ErrorSnackbarComponent] } });
 
     fixture = TestBed.createComponent(AppComponent);
     mockStore = TestBed.get<Store<{ todos: AppState }>>(Store);
@@ -51,7 +49,11 @@ describe('AppComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should display a toolbar', async(() => {
+  afterEach(() => {
+    TestBed.get(MatSnackBar).dismiss();
+  });
+
+  it('should display a toolbar', () => {
     const element = fixture.nativeElement;
     expect(element.querySelector('mat-toolbar'))
       .withContext('You probably forgot to add the Material Toolbar to the AppComponent template')
@@ -60,13 +62,17 @@ describe('AppComponent', () => {
     expect(element.querySelector('mat-toolbar').textContent)
       .withContext('You probably forgot to display a beautiful text with the word \'TODO\' in the toolbar')
       .toContain('TODO');
-  }));
+  });
 
-  it('should use the TodoList component', async(() => {
-    const element = fixture.debugElement;
-    expect(element.query(By.directive(TodoListComponent)))
-      .withContext('You probably forgot to add TodoList to the AppComponent template')
-      .not.toBeNull();
-  }));
+  it('should display an error notification if todoError is present into the Store', () => {
+    // Set a State having an error
+    const error: Error = new Error('test error message !!!!');
+    mockStore.setState({ todos: { todoList: null, detailedTodo: null, todoError: error } });
+    mockStore.refreshState();
+    fixture.detectChanges();
+    // Checks
+    const containerElement = TestBed.get(OverlayContainer).getContainerElement().querySelector('snack-bar-container');
+    expect(containerElement.textContent).toContain(error.message);
+  });
 
 });

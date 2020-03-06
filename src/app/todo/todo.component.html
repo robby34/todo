@@ -1,0 +1,12 @@
+<div class="detailed-todo-container" *ngIf="todo$ | async as todo">
+    <mat-card>
+        <mat-card-header>
+            <mat-card-title>
+                <mat-checkbox (change)="toggleComplete($event, todo)" [checked]="todo.state==='DONE'"></mat-checkbox>
+                {{todo.title}}
+            </mat-card-title>
+            <mat-card-subtitle>{{ todo.creationDate | date:'longDate' }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>{{todo.description}}</mat-card-content>
+    </mat-card>
+</div>
