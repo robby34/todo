@@ -32,17 +32,17 @@ describe('TodoEffects', () => {
     });
 
     it('should return a stream with the success action getTodoListSuccessAction (containing the Todo list)', () => {
-        const payload: Array<Todo> = [
+        const fakeTodos: Array<Todo> = [
             { id: 0, title: 'A first task', state: 'UNDONE' },
             { id: 1, title: 'A second task', state: 'UNDONE' },
             { id: 2, title: 'A third task', state: 'UNDONE' }
         ];
 
         actions$ = hot('-a', { a: getTodoListAction });
-        const response = cold('-a|', { a: payload });
+        const response = cold('-a|', { a: fakeTodos });
         todoServiceSpy.list.and.returnValue(response);
 
-        const expected = cold('--b', { b: getTodoListSuccessAction({ payload }) });
+        const expected = cold('--b', { b: getTodoListSuccessAction({ todos: fakeTodos }) });
         expect(effects.loadTodos$)
             .withContext('The success action should be raised after having wait for 10 + 10 frames')
             .toBeObservable(expected);
@@ -62,26 +62,26 @@ describe('TodoEffects', () => {
     });
 
     it('should only react for action getTodoListAction', () => {
-        const payload: Array<Todo> = [{ id: 0, title: 'A task', state: 'UNDONE' }];
+        const fakeTodos: Array<Todo> = [{ id: 0, title: 'A task', state: 'UNDONE' }];
 
         actions$ = hot('-x--a', { x: { type: 'Whatever Action' }, a: getTodoListAction });
-        todoServiceSpy.list.and.returnValue(of(payload));
+        todoServiceSpy.list.and.returnValue(of(fakeTodos));
 
-        const expected = cold('----b', { b: getTodoListSuccessAction({ payload }) });
+        const expected = cold('----b', { b: getTodoListSuccessAction({ todos: fakeTodos }) });
         expect(effects.loadTodos$).toBeObservable(expected);
     });
 
     it('should return a stream with the success action toggleCompleteActionSuccess (containing Todo id, and the new state)', () => {
-        const payload: Array<Todo> = [
+        const fakeTodos: Array<Todo> = [
             { id: 0, title: 'A first task', state: 'UNDONE' },
             { id: 1, title: 'A second task', state: 'UNDONE' },
             { id: 2, title: 'A third task', state: 'UNDONE' }
         ];
-        const clonedTodo = cloneTodo(payload[1]);
+        const clonedTodo = cloneTodo(fakeTodos[1]);
         clonedTodo.state = 'DONE';
 
         // Prepare the stream raising the toggleCompleteAction with the Todo of id 1 in param (Todo is cloned as it is in the component)
-        actions$ = hot('-a', { a: toggleCompleteAction({ payload: clonedTodo }) });
+        actions$ = hot('-a', { a: toggleCompleteAction({ todo: clonedTodo }) });
         const response = cold('-a|', {});
         todoServiceSpy.update.and.returnValue(response);
 
@@ -94,7 +94,7 @@ describe('TodoEffects', () => {
     it('should return a stream with the error action todoErrorAction (containing the toggleCompleteAction error message)', () => {
         const error = new Error('Error occurred processing toggleCompleteAction !!!');
 
-        actions$ = hot('-a', { a: toggleCompleteAction({ payload: { id: 0, title: 'A task', state: 'UNDONE' } }) });
+        actions$ = hot('-a', { a: toggleCompleteAction({ todo: { id: 0, title: 'A task', state: 'UNDONE' } }) });
         const response = cold('-#|', {}, error);
         todoServiceSpy.update.and.returnValue(response);
 
@@ -107,7 +107,7 @@ describe('TodoEffects', () => {
     it('should only react for action toggleCompleteAction', () => {
         const modifiedTodo: Todo = { id: 0, title: 'A task', state: 'DONE' };
 
-        actions$ = hot('-x--a', { x: { type: 'Whatever Action' }, a: toggleCompleteAction({ payload: modifiedTodo }) });
+        actions$ = hot('-x--a', { x: { type: 'Whatever Action' }, a: toggleCompleteAction({ todo: modifiedTodo }) });
         const response = cold('-a|', {});
         todoServiceSpy.update.and.returnValue(response);
 

@@ -22,11 +22,14 @@ import { InMemoryTodoService } from './in-memory-todo.service';
 import { environment } from 'src/environments/environment';
 import { TodoEffects } from './ngrx/todo.effects';
 import { ErrorSnackbarComponent } from './error-snackbar/error-snackbar.component';
-
+import { ROUTES } from './app.routes';
+import { RouterModule } from '@angular/router';
+import { TodoComponent } from './todo/todo.component';
 
 @NgModule({
   imports: [
     BrowserModule,
+    RouterModule.forRoot(ROUTES),
     StoreModule.forRoot({ todos: todoReducer }),
     EffectsModule.forRoot([TodoEffects]),
     HttpClientModule,
@@ -36,7 +39,8 @@ import { ErrorSnackbarComponent } from './error-snackbar/error-snackbar.componen
   declarations: [
     AppComponent,
     TodoListComponent,
-    ErrorSnackbarComponent
+    ErrorSnackbarComponent,
+    TodoComponent
   ],
   // With Material dialogs and snackers, we create our components dynamically.
   // So we have to add them to the entryComponents of the module.

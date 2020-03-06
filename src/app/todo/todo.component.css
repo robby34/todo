@@ -1,0 +1,18 @@
+.detailed-todo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.mat-card {
+    width: 50%;
+    margin-top: 8%;
+}
+
+.mat-checkbox {
+    margin-right: 15px;
+}
+
+.mat-card-subtitle {
+    margin-left: 37px;
+}

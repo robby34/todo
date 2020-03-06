@@ -1,9 +1,8 @@
 <div *ngIf="todoList$ | async as todos">
     <mat-card class="todo-list" *ngFor="let todo of todos">
         <mat-nav-list>
-            <mat-list-item>
-                <mat-checkbox (change)="toggleComplete($event, todo)" [checked]="todo.state==='DONE'" #checkbox>
-                </mat-checkbox>
+            <mat-checkbox (change)="toggleComplete($event, todo)" [checked]="todo.state==='DONE'" #checkbox></mat-checkbox>
+            <mat-list-item [routerLink]="['/todos', todo.id]">
                 <span class="todo-title" [ngClass]="{'done':checkbox.checked}">{{ todo.title }}</span>
                 <span class="todo-creation-date" [ngClass]="{'done':checkbox.checked}" *ngIf="todo.creationDate">
                     [created on {{ todo.creationDate | date:'longDate' }}]
