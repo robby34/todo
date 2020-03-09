@@ -15,6 +15,7 @@ import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/t
 import { ErrorSnackbarComponent } from './error-snackbar/error-snackbar.component';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatIconModule } from '@angular/material/icon';
 
 describe('AppComponent', () => {
 
@@ -31,7 +32,8 @@ describe('AppComponent', () => {
   beforeEach(() => {
     TestBed
       .configureTestingModule({
-        imports: [BrowserAnimationsModule, MatToolbarModule, MatCardModule, MatCheckboxModule, MatListModule, MatSnackBarModule,
+        imports: [
+          BrowserAnimationsModule, MatToolbarModule, MatCardModule, MatCheckboxModule, MatListModule, MatSnackBarModule, MatIconModule,
           RouterTestingModule, HttpClientTestingModule],
         declarations: [AppComponent, TodoListComponent, ErrorSnackbarComponent],
         providers: [

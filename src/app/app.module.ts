@@ -9,6 +9,9 @@ import { MatListModule } from '@angular/material/list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
@@ -25,6 +28,7 @@ import { ErrorSnackbarComponent } from './error-snackbar/error-snackbar.componen
 import { ROUTES } from './app.routes';
 import { RouterModule } from '@angular/router';
 import { TodoComponent } from './todo/todo.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   imports: [
@@ -34,7 +38,9 @@ import { TodoComponent } from './todo/todo.component';
     EffectsModule.forRoot([TodoEffects]),
     HttpClientModule,
     environment.production ? [] : HttpClientInMemoryWebApiModule.forRoot(InMemoryTodoService, { delay: 150 }),
-    BrowserAnimationsModule, MatToolbarModule, MatCardModule, MatListModule, MatCheckboxModule, MatButtonModule, MatSnackBarModule
+    BrowserAnimationsModule, MatToolbarModule, MatCardModule, MatListModule, MatCheckboxModule, MatButtonModule, MatSnackBarModule,
+    MatFormFieldModule, MatInputModule, MatIconModule,
+    FormsModule
   ],
   declarations: [
     AppComponent,
