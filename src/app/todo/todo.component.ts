@@ -1,24 +1,30 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 import { AppState } from '../model/todo.state';
 import { Todo, cloneTodo } from '../model/todo.model';
-import { Observable } from 'rxjs';
-import { getDetailedTodoAction, toggleCompleteAction } from '../ngrx/todo.actions';
+import { Observable, Subscription } from 'rxjs';
+import { getDetailedTodoAction, toggleCompleteAction, updateTitleAction, updateDescriptionAction } from '../ngrx/todo.actions';
 import { getDetailedTodo } from '../ngrx/todo.selectors';
 import { MatCheckboxChange } from '@angular/material/checkbox';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'todo-todo',
   templateUrl: './todo.component.html',
   styleUrls: ['./todo.component.css']
 })
-export class TodoComponent implements OnInit {
+export class TodoComponent implements OnInit, OnDestroy {
 
   readonly todo$: Observable<Todo>;
+  /** ToBeDiscussed with WebFactory:
+   * Warn: the class variable 'todo' is used to reflect the actual State of the detailed Todo in Store.
+   * But it is also directly used as 'ngModel' for input fields, and then will be modified...
+   * Is it a good practice ?
+   */
+  todo: Todo;
+  todoSubscription: Subscription;
 
-  constructor(private route: ActivatedRoute, private store: Store<{ todos: AppState }>, private matSnackBar: MatSnackBar) {
+  constructor(private route: ActivatedRoute, private store: Store<{ todos: AppState }>) {
     /** ToBeDiscussed with WebFactory:
      * Implementation choice is to have a dedicated place ('detailedTodo') in the Store for the Todo being viewed in detail.
      * At init, this component asks for an action to get the Todo, and store it in the Store, in 'detailedTodo'.
@@ -37,6 +43,14 @@ export class TodoComponent implements OnInit {
   ngOnInit() {
     const id = +this.route.snapshot.paramMap.get('todoId');
     this.store.dispatch(getDetailedTodoAction({ todoId: id }));
+
+    this.todoSubscription = this.todo$.subscribe(todo => {
+      this.todo = todo;
+    });
+  }
+
+  ngOnDestroy() {
+    this.todoSubscription.unsubscribe();
   }
 
   toggleComplete(event: MatCheckboxChange, todo: Todo) {
@@ -48,6 +62,20 @@ export class TodoComponent implements OnInit {
     clonedTodo.state = event.checked ? 'DONE' : 'UNDONE';
     // Dispatch NgRx Action
     this.store.dispatch(toggleCompleteAction({ todo: clonedTodo }));
+  }
+
+  updateTitle(event: any) {
+    // Dispatch NgRx Action with new title
+    this.store.dispatch(updateTitleAction({ todo: this.todo }));
+    // Remove the focus of the title field
+    event.target.blur();
+  }
+
+  updateDescription(event: any) {
+    // Dispatch NgRx Action with new description
+    this.store.dispatch(updateDescriptionAction({ todo: this.todo }));
+    // Remove the focus of the description field
+    event.target.blur();
   }
 
 }

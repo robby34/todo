@@ -9,10 +9,30 @@
     margin-top: 8%;
 }
 
-.mat-checkbox {
-    margin-right: 15px;
+.mat-card-header .mat-checkbox {
+    margin-right: 20px;
+    position: relative;
+    top: 21px;
 }
 
-.mat-card-subtitle {
-    margin-left: 37px;
+.mat-card-header .mat-form-field {
+    display: block;
+    margin-left: 40px;
+    margin-top: -45px;
+    font-weight: 500;
+}
+
+.mat-card-header .mat-card-subtitle {
+    margin-left: 40px;
+    margin-top: -25px;
+    margin-bottom: 30px;
+}
+
+.mat-card-content .mat-form-field {
+    display: block;
+}
+
+textarea.mat-input-element {
+    resize: none;
+    height: 12em;
 }

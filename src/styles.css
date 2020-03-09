@@ -2,4 +2,14 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* With Material dialogs and snackers, we create our components dynamically, so they are not attached to any Component */
 .mat-snack-bar-container { background:#f44336; }
+
+/* TodoComponent => in detailed view, manage a full width for the input of title */
+.todo-detailed div.mat-card-header-text {
+    width: 100%;
+}
+.todo-detailed .mat-card-title {
+    width: 100%;
+}
