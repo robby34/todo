@@ -20,13 +20,10 @@ describe('TodoListComponent', () => {
 
   const initialState = {
     todos: {
-      todoList: [
-        { id: 0, title: 'My first task', state: 'UNDONE', description: 'This is my first Task to do !!!', creationDate: new Date() },
-        { id: 1, title: 'A new task', state: 'DONE', description: 'This is the description of the new task', creationDate: new Date() }
-      ]
-    },
-    detailedTodo: null,
-    todoError: null
+      todoList: null,
+      detailedTodo: null,
+      todoError: null
+    }
   };
   let fixture: ComponentFixture<TodoListComponent>;
   let component: TodoListComponent;
@@ -65,6 +62,20 @@ describe('TodoListComponent', () => {
   });
 
   it('should display the Todos from the Store', () => {
+    // Set a State having 2 Todos
+    mockStore.setState({
+      todos: {
+        todoList: [
+          { id: 0, title: 'My first task', state: 'UNDONE', description: 'This is my first Task to do !!!', creationDate: new Date() },
+          { id: 1, title: 'A new task', state: 'DONE', description: 'This is the description of the new task', creationDate: new Date() }
+        ],
+        detailedTodo: null,
+        todoError: null
+      }
+    });
+    mockStore.refreshState();
+    fixture.detectChanges();
+
     const items = fixture.nativeElement.querySelectorAll('.mat-list-item');
     expect(items.length).toBe(2);
 
@@ -94,7 +105,20 @@ describe('TodoListComponent', () => {
   });
 
   it('should dispatch the action toggleCompleteAction when tick a checkbox of an UNDONE Todo', () => {
-    const undoneTodo = initialState.todos.todoList[0] as Todo;
+    // Set a State having 2 Todos
+    const nextState: AppState = {
+      todoList: [
+        { id: 0, title: 'My first task', state: 'UNDONE', description: 'This is my first Task to do !!!', creationDate: new Date() },
+        { id: 1, title: 'A new task', state: 'DONE', description: 'This is the description of the new task', creationDate: new Date() }
+      ],
+      detailedTodo: null,
+      todoError: null
+    };
+    mockStore.setState({ todos: nextState });
+    mockStore.refreshState();
+    fixture.detectChanges();
+
+    const undoneTodo = nextState.todoList[0] as Todo;
     expect(undoneTodo.state).toBe('UNDONE');
 
     // Tick the checkbox of the first Todo (which is UNDONE at init)
@@ -106,15 +130,28 @@ describe('TodoListComponent', () => {
     expect(mockStore.dispatch).toHaveBeenCalledWith(toggleCompleteAction({ todo: clonedTodo }));
   });
 
-  it('should dispatch the action toggleCompleteAction when tick a checkbox of an DONE Todo', () => {
-    const undoneTodo = initialState.todos.todoList[1] as Todo;
-    expect(undoneTodo.state).toBe('DONE');
+  it('should dispatch the action toggleCompleteAction when tick a checkbox of a DONE Todo', () => {
+    // Set a State having 2 Todos
+    const nextState: AppState = {
+      todoList: [
+        { id: 0, title: 'My first task', state: 'UNDONE', description: 'This is my first Task to do !!!', creationDate: new Date() },
+        { id: 1, title: 'A new task', state: 'DONE', description: 'This is the description of the new task', creationDate: new Date() }
+      ],
+      detailedTodo: null,
+      todoError: null
+    };
+    mockStore.setState({ todos: nextState });
+    mockStore.refreshState();
+    fixture.detectChanges();
 
-    // Tick the checkbox of the first Todo (which is UNDONE at init)
+    const doneTodo = nextState.todoList[1] as Todo;
+    expect(doneTodo.state).toBe('DONE');
+
+    // Tick the checkbox of the second Todo (which is DONE at init)
     fixture.nativeElement.querySelectorAll('.mat-checkbox-input')[1].click();
     fixture.detectChanges();
 
-    const clonedTodo = cloneTodo(undoneTodo);
+    const clonedTodo = cloneTodo(doneTodo);
     clonedTodo.state = 'UNDONE';
     expect(mockStore.dispatch).toHaveBeenCalledWith(toggleCompleteAction({ todo: clonedTodo }));
   });

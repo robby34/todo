@@ -2,7 +2,10 @@ import { TestBed } from '@angular/core/testing';
 import { hot, cold } from 'jasmine-marbles';
 import { Todo, cloneTodo } from '../model/todo.model';
 import {
-    getTodoListAction, getTodoListSuccessAction, todoErrorAction, toggleCompleteAction, toggleCompleteActionSuccess
+    getTodoListAction, getTodoListSuccessAction,
+    toggleCompleteAction, toggleCompleteActionSuccess,
+    getDetailedTodoAction, getDetailedTodoSuccessAction,
+    todoErrorAction
 } from './todo.actions';
 import { Observable, of } from 'rxjs';
 import { Action } from '@ngrx/store';
@@ -17,7 +20,7 @@ describe('TodoEffects', () => {
     let todoServiceSpy: jasmine.SpyObj<TodoService>;
 
     beforeEach(() => {
-        const spy = jasmine.createSpyObj('TodoService', ['list', 'update']);
+        const spy = jasmine.createSpyObj('TodoService', ['list', 'update', 'getTodo']);
 
         TestBed.configureTestingModule({
             providers: [
@@ -48,7 +51,7 @@ describe('TodoEffects', () => {
             .toBeObservable(expected);
     });
 
-    it('should return a stream with the error action todoErrorAction (containing the getTodoListAction error message)', () => {
+    it('should return a stream with the error action todoErrorAction (containing the getTodoListAction error)', () => {
         const error = new Error('Error occurred processing getTodoListAction !!!');
 
         actions$ = hot('-a', { a: getTodoListAction });
@@ -91,7 +94,7 @@ describe('TodoEffects', () => {
             .toBeObservable(expected);
     });
 
-    it('should return a stream with the error action todoErrorAction (containing the toggleCompleteAction error message)', () => {
+    it('should return a stream with the error action todoErrorAction (containing the toggleCompleteAction error)', () => {
         const error = new Error('Error occurred processing toggleCompleteAction !!!');
 
         actions$ = hot('-a', { a: toggleCompleteAction({ todo: { id: 0, title: 'A task', state: 'UNDONE' } }) });
@@ -113,6 +116,42 @@ describe('TodoEffects', () => {
 
         const expected = cold('-----b', { b: toggleCompleteActionSuccess({ todoId: 0, todoState: 'DONE' }) });
         expect(effects.toggleCompleteTodo$).toBeObservable(expected);
+    });
+
+    it('should return a stream with the success action getDetailedTodoSuccessAction (containing the Todo)', () => {
+        const fakeTodo: Todo = { id: 2, title: 'A task', state: 'UNDONE' };
+
+        actions$ = hot('-a', { a: getDetailedTodoAction({ todoId: 2 }) });
+        const response = cold('-a|', { a: fakeTodo });
+        todoServiceSpy.getTodo.and.returnValue(response);
+
+        const expected = cold('--b', { b: getDetailedTodoSuccessAction(fakeTodo) });
+        expect(effects.getDetailedTodo$)
+            .withContext('The success action should be raised after having wait for 10 + 10 frames')
+            .toBeObservable(expected);
+    });
+
+    it('should return a stream with the error action todoErrorAction (containing the getDetailedTodoAction error)', () => {
+        const error = new Error('Error occurred processing getDetailedTodoAction !!!');
+
+        actions$ = hot('-a', { a: getDetailedTodoAction({ todoId: 2 }) });
+        const response = cold('-#|', {}, error);
+        todoServiceSpy.getTodo.and.returnValue(response);
+
+        const expected = cold('--b', { b: todoErrorAction(error) });
+        expect(effects.getDetailedTodo$)
+            .withContext('The error action should be raised after having wait for 10 + 10 frames')
+            .toBeObservable(expected);
+    });
+
+    it('should only react for action getDetailedTodoAction', () => {
+        const fakeTodo: Todo = { id: 5, title: 'A task', state: 'UNDONE' };
+
+        actions$ = hot('-x--a', { x: { type: 'Whatever Action' }, a: getDetailedTodoAction({ todoId: 5 }) });
+        todoServiceSpy.getTodo.and.returnValue(of(fakeTodo));
+
+        const expected = cold('----b', { b: getDetailedTodoSuccessAction(fakeTodo) });
+        expect(effects.getDetailedTodo$).toBeObservable(expected);
     });
 
 });
