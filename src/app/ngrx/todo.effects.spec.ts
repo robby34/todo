@@ -3,10 +3,11 @@ import { hot, cold } from 'jasmine-marbles';
 import { Todo, cloneTodo } from '../model/todo.model';
 import {
     getTodoListAction, getTodoListSuccessAction,
-    toggleCompleteAction, toggleCompleteActionSuccess,
+    toggleCompleteAction, toggleCompleteSuccessAction,
     getDetailedTodoAction, getDetailedTodoSuccessAction,
-    updateTitleAction, updateTitleActionSuccess,
-    updateDescriptionAction, updateDescriptionActionSuccess,
+    updateTitleAction, updateTitleSuccessAction,
+    updateDescriptionAction, updateDescriptionSuccessAction,
+    createTodoAction, createTodoSuccessAction,
     todoErrorAction
 } from './todo.actions';
 import { Observable, of } from 'rxjs';
@@ -22,7 +23,7 @@ describe('TodoEffects', () => {
     let todoServiceSpy: jasmine.SpyObj<TodoService>;
 
     beforeEach(() => {
-        const spy = jasmine.createSpyObj('TodoService', ['list', 'update', 'getTodo']);
+        const spy = jasmine.createSpyObj('TodoService', ['list', 'update', 'getTodo', 'create']);
 
         TestBed.configureTestingModule({
             providers: [
@@ -60,7 +61,7 @@ describe('TodoEffects', () => {
         const response = cold('-#|', {}, error);
         todoServiceSpy.list.and.returnValue(response);
 
-        const expected = cold('--b', { b: todoErrorAction(error) });
+        const expected = cold('--b', { b: todoErrorAction({ error }) });
         expect(effects.loadTodos$)
             .withContext('The error action should be raised after having wait for 10 + 10 frames')
             .toBeObservable(expected);
@@ -76,7 +77,7 @@ describe('TodoEffects', () => {
         expect(effects.loadTodos$).toBeObservable(expected);
     });
 
-    it('should return a stream with the success action toggleCompleteActionSuccess (containing Todo id, and the new state)', () => {
+    it('should return a stream with the success action toggleCompleteSuccessAction (containing Todo id, and the new state)', () => {
         const fakeTodos: Array<Todo> = [
             { id: 0, title: 'A first task', state: 'UNDONE' },
             { id: 1, title: 'A second task', state: 'UNDONE' },
@@ -90,7 +91,7 @@ describe('TodoEffects', () => {
         const response = cold('-a|', {});
         todoServiceSpy.update.and.returnValue(response);
 
-        const expected = cold('--b', { b: toggleCompleteActionSuccess({ todoId: 1, todoState: 'DONE' }) });
+        const expected = cold('--b', { b: toggleCompleteSuccessAction({ todoId: 1, todoState: 'DONE' }) });
         expect(effects.toggleCompleteTodo$)
             .withContext('The success action should be raised after having wait for 10 + 10 frames')
             .toBeObservable(expected);
@@ -103,7 +104,7 @@ describe('TodoEffects', () => {
         const response = cold('-#|', {}, error);
         todoServiceSpy.update.and.returnValue(response);
 
-        const expected = cold('--b', { b: todoErrorAction(error) });
+        const expected = cold('--b', { b: todoErrorAction({ error }) });
         expect(effects.toggleCompleteTodo$)
             .withContext('The error action should be raised after having wait for 10 + 10 frames')
             .toBeObservable(expected);
@@ -116,7 +117,7 @@ describe('TodoEffects', () => {
         const response = cold('-a|', {});
         todoServiceSpy.update.and.returnValue(response);
 
-        const expected = cold('-----b', { b: toggleCompleteActionSuccess({ todoId: 0, todoState: 'DONE' }) });
+        const expected = cold('-----b', { b: toggleCompleteSuccessAction({ todoId: 0, todoState: 'DONE' }) });
         expect(effects.toggleCompleteTodo$).toBeObservable(expected);
     });
 
@@ -127,7 +128,7 @@ describe('TodoEffects', () => {
         const response = cold('-a|', { a: fakeTodo });
         todoServiceSpy.getTodo.and.returnValue(response);
 
-        const expected = cold('--b', { b: getDetailedTodoSuccessAction(fakeTodo) });
+        const expected = cold('--b', { b: getDetailedTodoSuccessAction({ todo: fakeTodo }) });
         expect(effects.getDetailedTodo$)
             .withContext('The success action should be raised after having wait for 10 + 10 frames')
             .toBeObservable(expected);
@@ -140,7 +141,7 @@ describe('TodoEffects', () => {
         const response = cold('-#|', {}, error);
         todoServiceSpy.getTodo.and.returnValue(response);
 
-        const expected = cold('--b', { b: todoErrorAction(error) });
+        const expected = cold('--b', { b: todoErrorAction({ error }) });
         expect(effects.getDetailedTodo$)
             .withContext('The error action should be raised after having wait for 10 + 10 frames')
             .toBeObservable(expected);
@@ -152,17 +153,17 @@ describe('TodoEffects', () => {
         actions$ = hot('-x--a', { x: { type: 'Whatever Action' }, a: getDetailedTodoAction({ todoId: 5 }) });
         todoServiceSpy.getTodo.and.returnValue(of(fakeTodo));
 
-        const expected = cold('----b', { b: getDetailedTodoSuccessAction(fakeTodo) });
+        const expected = cold('----b', { b: getDetailedTodoSuccessAction({ todo: fakeTodo }) });
         expect(effects.getDetailedTodo$).toBeObservable(expected);
     });
 
-    it('should return a stream with the success action updateTitleActionSuccess (containing Todo id, and the new title)', () => {
+    it('should return a stream with the success action updateTitleSuccessAction (containing Todo id, and the new title)', () => {
         // Prepare the stream raising the updateTitleAction with the Todo in param
         actions$ = hot('-a', { a: updateTitleAction({ todo: { id: 0, title: 'Modified title', state: 'UNDONE' } }) });
         const response = cold('-a|', {});
         todoServiceSpy.update.and.returnValue(response);
 
-        const expected = cold('--b', { b: updateTitleActionSuccess({ todoId: 0, todoTitle: 'Modified title' }) });
+        const expected = cold('--b', { b: updateTitleSuccessAction({ todoId: 0, todoTitle: 'Modified title' }) });
         expect(effects.updateTitle$)
             .withContext('The success action should be raised after having wait for 10 + 10 frames')
             .toBeObservable(expected);
@@ -175,19 +176,19 @@ describe('TodoEffects', () => {
         const response = cold('-#|', {}, error);
         todoServiceSpy.update.and.returnValue(response);
 
-        const expected = cold('--b', { b: todoErrorAction(error) });
+        const expected = cold('--b', { b: todoErrorAction({ error }) });
         expect(effects.updateTitle$)
             .withContext('The error action should be raised after having wait for 10 + 10 frames')
             .toBeObservable(expected);
     });
 
-    it('should return a stream with the success action updateDescriptionActionSuccess (containing Todo id, and new description)', () => {
+    it('should return a stream with the success action updateDescriptionSuccessAction (containing Todo id, and new description)', () => {
         // Prepare the stream raising the updateTitleAction with the Todo in param
         actions$ = hot('-a', { a: updateDescriptionAction({ todo: { id: 0, title: 'T', state: 'DONE', description: 'Modified desc' } }) });
         const response = cold('-a|', {});
         todoServiceSpy.update.and.returnValue(response);
 
-        const expected = cold('--b', { b: updateDescriptionActionSuccess({ todoId: 0, todoDescription: 'Modified desc' }) });
+        const expected = cold('--b', { b: updateDescriptionSuccessAction({ todoId: 0, todoDescription: 'Modified desc' }) });
         expect(effects.updateDescription$)
             .withContext('The success action should be raised after having wait for 10 + 10 frames')
             .toBeObservable(expected);
@@ -200,8 +201,37 @@ describe('TodoEffects', () => {
         const response = cold('-#|', {}, error);
         todoServiceSpy.update.and.returnValue(response);
 
-        const expected = cold('--b', { b: todoErrorAction(error) });
+        const expected = cold('--b', { b: todoErrorAction({ error }) });
         expect(effects.updateDescription$)
+            .withContext('The error action should be raised after having wait for 10 + 10 frames')
+            .toBeObservable(expected);
+    });
+
+    it('should return a stream with the success action createTodoSuccessAction (containing the Todo)', () => {
+        const partialTodo = { title: 'Title', state: 'UNDONE', description: 'Description' } as Todo;
+        const receivedTodoFromBackend: Todo = cloneTodo(partialTodo);
+        receivedTodoFromBackend.id = 3;
+
+        actions$ = hot('-a', { a: createTodoAction({ todo: partialTodo }) });
+        const response = cold('-a|', { a: receivedTodoFromBackend });
+        todoServiceSpy.create.and.returnValue(response);
+
+        const expected = cold('--b', { b: createTodoSuccessAction({ todo: receivedTodoFromBackend }) });
+        expect(effects.createTodo$)
+            .withContext('The success action should be raised after having wait for 10 + 10 frames')
+            .toBeObservable(expected);
+    });
+
+    it('should return a stream with the error action todoErrorAction (containing the createTodoAction error)', () => {
+        const partialTodo = { title: 'Title', state: 'UNDONE', description: 'Description' } as Todo;
+        const error = new Error('Error occurred processing createTodoAction !!!');
+
+        actions$ = hot('-a', { a: createTodoAction({ todo: partialTodo }) });
+        const response = cold('-#|', {}, error);
+        todoServiceSpy.create.and.returnValue(response);
+
+        const expected = cold('--b', { b: todoErrorAction({ error }) });
+        expect(effects.createTodo$)
             .withContext('The error action should be raised after having wait for 10 + 10 frames')
             .toBeObservable(expected);
     });

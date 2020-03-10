@@ -33,23 +33,23 @@ export class InMemoryTodoService implements InMemoryDbService {
     const todos = [
       {
         id: 1,
-        title: 'My first task',
+        title: 'Apprendre NgRx',
         state: 'DONE',
         description: this.desc1,
         creationDate: substractDays(new Date(), 5)
       },
       {
         id: 2,
-        title: 'A new task',
+        title: 'Organiser un workshop avec la WebFactory',
         state: 'UNDONE',
         description: this.desc2,
         creationDate: substractDays(new Date(), 2)
       },
       {
-        id: 3, title: 'Again a new task', state: 'UNDONE', description: this.desc3,
+        id: 3, title: 'Traiter les MRs de Mike', state: 'UNDONE', description: this.desc3,
         creationDate: substractDays(new Date(), 1)
       },
-      { id: 4, title: 'Still a new task', state: 'UNDONE', description: this.desc4, creationDate: new Date() }
+      { id: 4, title: 'Prévoir un resto de fin de Sprint', state: 'UNDONE', description: this.desc4, creationDate: new Date() }
     ];
     return { todos };
   }

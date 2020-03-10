@@ -13,3 +13,9 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .todo-detailed .mat-card-title {
     width: 100%;
 }
+
+/* AddComponent => in the home page with Todo list, manage the input to add new Todo with input and button on same line, and centered */
+.todo-add .mat-form-field-infix {
+    display: flex;
+    padding: 0 0 0.6em 0;
+}

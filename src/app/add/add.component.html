@@ -1,0 +1,8 @@
+<form [formGroup]="addTodoForm" (ngSubmit)="addNewTodo()">
+    <mat-form-field class="todo-add" color="accent" appearance="outline">
+        <input formControlName="title" matInput placeholder="I have to..." #titleInput>
+        <button type="submit" mat-mini-fab [disabled]="titleInput.value.length < 1">
+            <mat-icon>add</mat-icon>
+        </button>
+    </mat-form-field>
+</form>

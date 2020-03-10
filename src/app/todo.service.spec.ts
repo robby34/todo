@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController, TestRequest } from '@angular/common/http/testing';
 import { TodoService } from './todo.service';
-import { Todo } from './model/todo.model';
+import { Todo, cloneTodo } from './model/todo.model';
 import { environment } from 'src/environments/environment';
 
 describe('TodoService', () => {
@@ -37,9 +37,9 @@ describe('TodoService', () => {
         creationDate: new Date()
       }
     ] as Array<Todo>;
-    let receivedTodoList: Array<Todo> = [];
 
     // Call the service
+    let receivedTodoList: Array<Todo> = [];
     todoService.list().subscribe((todos: Array<Todo>) => receivedTodoList = todos);
 
     // Assert HTTP request has been called
@@ -62,9 +62,9 @@ describe('TodoService', () => {
       description: 'This is the description of the new task',
       creationDate: new Date()
     };
-    let responseReceived = false;
 
     // Call the service
+    let responseReceived = false;
     todoService.update(modifiedTodo).subscribe(() => responseReceived = true);
 
     // Assert HTTP request has been called
@@ -86,9 +86,9 @@ describe('TodoService', () => {
       description: 'This is my first Task to do !!!',
       creationDate: new Date()
     };
-    let receivedTodo: Todo;
 
     // Call the service
+    let receivedTodo: Todo;
     todoService.getTodo(2).subscribe((todo: Todo) => receivedTodo = todo);
 
     // Assert HTTP request has been called
@@ -100,6 +100,31 @@ describe('TodoService', () => {
     expect(receivedTodo)
       .withContext('The subscription to the `getTodo` Observable should send an HTTP request, returning a Todo')
       .toEqual(fakeTodo);
+  });
+
+  it('should return an Observable when want to create a Todo', () => {
+    const partialTodo: Todo = {
+      title: 'A new task',
+      state: 'UNDONE',
+      description: 'This is the description of the new task',
+      creationDate: new Date()
+    } as Todo;
+    const mockedTodoFromBackend: Todo = cloneTodo(partialTodo);
+    mockedTodoFromBackend.id = 12;
+
+    // Call the service
+    let receivedTodo: Todo;
+    todoService.create(partialTodo).subscribe((todo: Todo) => receivedTodo = todo);
+
+    // Assert HTTP request has been called
+    const request: TestRequest = http.expectOne(`${environment.baseUrl}/api/todos`);
+
+    // Resolve the request by returning the mocked Todo
+    request.flush(mockedTodoFromBackend);
+
+    expect(receivedTodo)
+      .withContext('The subscription to the `create` Observable should send an HTTP request')
+      .toEqual(mockedTodoFromBackend);
   });
 
 });
