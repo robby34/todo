@@ -2,14 +2,14 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { TodoService } from '../todo.service';
 import {
-    getTodoListAction, getTodoListSuccessAction,
-    toggleCompleteAction, toggleCompleteActionSuccess,
+    todoErrorAction, getTodoListAction, getTodoListSuccessAction,
     getDetailedTodoAction, getDetailedTodoSuccessAction,
-    updateTitleAction, updateTitleActionSuccess,
-    updateDescriptionAction, updateDescriptionActionSuccess,
-    todoErrorAction
+    toggleCompleteAction, toggleCompleteSuccessAction,
+    updateTitleAction, updateTitleSuccessAction,
+    updateDescriptionAction, updateDescriptionSuccessAction,
+    createTodoAction, createTodoSuccessAction
 } from './todo.actions';
-import { switchMap, catchError, map } from 'rxjs/operators';
+import { switchMap, catchError, map, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 @Injectable()
@@ -42,7 +42,7 @@ export class TodoEffects {
      * a mocked Backend with angular-in-memory-web-api).
      * The object has previously been cloned in the component (to don't have confusion and never change the State of the Store).
      * So we request the Backend with a cloned modified Todo, but should be more a request with the Todo id and the new DONE/UNDONE status.
-     * This is only for the action toggleCompleteAction requesting the Backend. Afterthat, we launch the toggleCompleteActionSuccess
+     * This is only for the action toggleCompleteAction requesting the Backend. Afterthat, we launch the toggleCompleteSuccessAction
      * and for it, we pass only todoId, and todoState :)
      * NOTE that the use of NgRx Entity should probably be interesting for the management of the Todo with Partial objects.
      */
@@ -50,7 +50,7 @@ export class TodoEffects {
         ofType(toggleCompleteAction),
         switchMap(action => this.todoService.update(action.todo)
             .pipe(
-                map(() => toggleCompleteActionSuccess({ todoId: action.todo.id, todoState: action.todo.state })),
+                map(() => toggleCompleteSuccessAction({ todoId: action.todo.id, todoState: action.todo.state })),
                 catchError((error: Error) => of(todoErrorAction(error)))
             )
         ))
@@ -60,7 +60,7 @@ export class TodoEffects {
         ofType(updateTitleAction),
         switchMap(action => this.todoService.update(action.todo)
             .pipe(
-                map(() => updateTitleActionSuccess({ todoId: action.todo.id, todoTitle: action.todo.title })),
+                map(() => updateTitleSuccessAction({ todoId: action.todo.id, todoTitle: action.todo.title })),
                 catchError((error: Error) => of(todoErrorAction(error)))
             )
         ))
@@ -70,7 +70,17 @@ export class TodoEffects {
         ofType(updateDescriptionAction),
         switchMap(action => this.todoService.update(action.todo)
             .pipe(
-                map(() => updateDescriptionActionSuccess({ todoId: action.todo.id, todoDescription: action.todo.description })),
+                map(() => updateDescriptionSuccessAction({ todoId: action.todo.id, todoDescription: action.todo.description })),
+                catchError((error: Error) => of(todoErrorAction(error)))
+            )
+        ))
+    );
+
+    createTodo$ = createEffect(() => this.actions$.pipe(
+        ofType(createTodoAction),
+        switchMap(action => this.todoService.create(action.todo)
+            .pipe(
+                map(todo => createTodoSuccessAction(todo)),
                 catchError((error: Error) => of(todoErrorAction(error)))
             )
         ))

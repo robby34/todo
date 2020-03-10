@@ -17,7 +17,12 @@ export class AppComponent {
       select(getTodoError)
     ).subscribe(error => {
       if (error != null) {
-        this.matSnackBar.openFromComponent(ErrorSnackbarComponent, { data: error.message });
+        if (error.message != null && error.message.length > 0) {
+          this.matSnackBar.openFromComponent(ErrorSnackbarComponent, { data: error.message });
+        } else {
+          console.error('Error occurred', error);
+          this.matSnackBar.openFromComponent(ErrorSnackbarComponent, { data: 'Error occurred' });
+        }
       } else {
         this.matSnackBar.dismiss();
       }

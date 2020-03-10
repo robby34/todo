@@ -1,4 +1,4 @@
-import { TestBed, async, ComponentFixture } from '@angular/core/testing';
+import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { TodoListComponent } from './todo-list/todo-list.component';
@@ -16,6 +16,10 @@ import { ErrorSnackbarComponent } from './error-snackbar/error-snackbar.componen
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { AddComponent } from './add/add.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 describe('AppComponent', () => {
 
@@ -34,8 +38,9 @@ describe('AppComponent', () => {
       .configureTestingModule({
         imports: [
           BrowserAnimationsModule, MatToolbarModule, MatCardModule, MatCheckboxModule, MatListModule, MatSnackBarModule, MatIconModule,
+          MatFormFieldModule, MatInputModule, ReactiveFormsModule,
           RouterTestingModule, HttpClientTestingModule],
-        declarations: [AppComponent, TodoListComponent, ErrorSnackbarComponent],
+        declarations: [AppComponent, TodoListComponent, ErrorSnackbarComponent, AddComponent],
         providers: [
           provideMockStore({ initialState }),
           { provide: MAT_SNACK_BAR_DATA }
@@ -75,6 +80,17 @@ describe('AppComponent', () => {
     // Checks
     const containerElement = TestBed.get(OverlayContainer).getContainerElement().querySelector('snack-bar-container');
     expect(containerElement.textContent).toContain(error.message);
+  });
+
+  it('should display an error notification with a generic message if todoError is present into the Store', () => {
+    // Set a State having an error without message
+    const errorWithoutMessage: Error = new Error();
+    mockStore.setState({ todos: { todoList: null, detailedTodo: null, todoError: errorWithoutMessage } });
+    mockStore.refreshState();
+    fixture.detectChanges();
+    // Checks
+    const containerElement = TestBed.get(OverlayContainer).getContainerElement().querySelector('snack-bar-container');
+    expect(containerElement.textContent).toContain('Error occurred');
   });
 
 });

@@ -1,4 +1,5 @@
 <div *ngIf="todoList$ | async as todos">
+    <todo-add></todo-add>
     <mat-card class="todo-list" *ngFor="let todo of todos">
         <mat-nav-list>
             <mat-checkbox (change)="toggleComplete($event, todo)" [checked]="todo.state==='DONE'" #checkbox></mat-checkbox>
