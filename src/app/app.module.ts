@@ -28,7 +28,8 @@ import { ErrorSnackbarComponent } from './error-snackbar/error-snackbar.componen
 import { ROUTES } from './app.routes';
 import { RouterModule } from '@angular/router';
 import { TodoComponent } from './todo/todo.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { AddComponent } from './add/add.component';
 
 @NgModule({
   imports: [
@@ -37,16 +38,17 @@ import { FormsModule } from '@angular/forms';
     StoreModule.forRoot({ todos: todoReducer }),
     EffectsModule.forRoot([TodoEffects]),
     HttpClientModule,
+    FormsModule, ReactiveFormsModule,
     environment.production ? [] : HttpClientInMemoryWebApiModule.forRoot(InMemoryTodoService, { delay: 150 }),
     BrowserAnimationsModule, MatToolbarModule, MatCardModule, MatListModule, MatCheckboxModule, MatButtonModule, MatSnackBarModule,
-    MatFormFieldModule, MatInputModule, MatIconModule,
-    FormsModule
+    MatIconModule, MatFormFieldModule, MatInputModule
   ],
   declarations: [
     AppComponent,
     TodoListComponent,
     ErrorSnackbarComponent,
-    TodoComponent
+    TodoComponent,
+    AddComponent
   ],
   // With Material dialogs and snackers, we create our components dynamically.
   // So we have to add them to the entryComponents of the module.

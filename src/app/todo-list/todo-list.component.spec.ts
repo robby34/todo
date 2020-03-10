@@ -11,10 +11,14 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Store, Action } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { getTodoListAction, toggleCompleteAction } from '../ngrx/todo.actions';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Todo, cloneTodo } from '../model/todo.model';
 import { RouterTestingModule } from '@angular/router/testing';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { AddComponent } from '../add/add.component';
 
 describe('TodoListComponent', () => {
 
@@ -32,9 +36,11 @@ describe('TodoListComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [BrowserAnimationsModule, MatToolbarModule, MatCardModule, MatCheckboxModule, MatListModule, MatSnackBarModule,
-        RouterTestingModule, HttpClientTestingModule],
-      declarations: [TodoListComponent],
+      imports: [
+        BrowserAnimationsModule, MatToolbarModule, MatCardModule, MatCheckboxModule, MatListModule, MatIconModule,
+        MatFormFieldModule, MatInputModule, ReactiveFormsModule,
+        FormsModule, RouterTestingModule, HttpClientTestingModule],
+      declarations: [TodoListComponent, AddComponent],
       providers: [
         provideMockStore({ initialState }),
         provideMockActions(() => actions$)
@@ -47,10 +53,6 @@ describe('TodoListComponent', () => {
     spyOn(mockStore, 'dispatch');
 
     fixture.detectChanges();
-  });
-
-  afterEach(() => {
-    TestBed.get(MatSnackBar).dismiss();
   });
 
   it('should create', () => {
