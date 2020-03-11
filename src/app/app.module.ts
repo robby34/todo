@@ -39,7 +39,11 @@ import { AddComponent } from './add/add.component';
     EffectsModule.forRoot([TodoEffects]),
     HttpClientModule,
     FormsModule, ReactiveFormsModule,
-    environment.production ? [] : HttpClientInMemoryWebApiModule.forRoot(InMemoryTodoService, { delay: 150 }),
+    /** TODO For now we only have a mocked Backend (with angular-in-memory-web-api).
+     * With a real backend, we need to use the mocked one only in dev environment, by using the following commented line:
+     */
+    // environment.production ? [] : HttpClientInMemoryWebApiModule.forRoot(InMemoryTodoService, { delay: 150 }),
+    HttpClientInMemoryWebApiModule.forRoot(InMemoryTodoService, { delay: 150 }),
     BrowserAnimationsModule, MatToolbarModule, MatCardModule, MatListModule, MatCheckboxModule, MatButtonModule, MatSnackBarModule,
     MatIconModule, MatFormFieldModule, MatInputModule
   ],

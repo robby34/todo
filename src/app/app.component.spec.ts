@@ -82,4 +82,15 @@ describe('AppComponent', () => {
     expect(containerElement.textContent).toContain(error.message);
   });
 
+  it('should display an error notification with a generic message if todoError is present into the Store', () => {
+    // Set a State having an error without message
+    const errorWithoutMessage: Error = new Error();
+    mockStore.setState({ todos: { todoList: null, detailedTodo: null, todoError: errorWithoutMessage } });
+    mockStore.refreshState();
+    fixture.detectChanges();
+    // Checks
+    const containerElement = TestBed.get(OverlayContainer).getContainerElement().querySelector('snack-bar-container');
+    expect(containerElement.textContent).toContain('Error occurred');
+  });
+
 });

@@ -7,6 +7,7 @@ import {
     getDetailedTodoAction, getDetailedTodoSuccessAction,
     updateTitleAction, updateTitleSuccessAction,
     updateDescriptionAction, updateDescriptionSuccessAction,
+    createTodoAction, createTodoSuccessAction,
     todoErrorAction
 } from './todo.actions';
 import { Observable, of } from 'rxjs';
@@ -22,7 +23,7 @@ describe('TodoEffects', () => {
     let todoServiceSpy: jasmine.SpyObj<TodoService>;
 
     beforeEach(() => {
-        const spy = jasmine.createSpyObj('TodoService', ['list', 'update', 'getTodo']);
+        const spy = jasmine.createSpyObj('TodoService', ['list', 'update', 'getTodo', 'create']);
 
         TestBed.configureTestingModule({
             providers: [
@@ -202,6 +203,35 @@ describe('TodoEffects', () => {
 
         const expected = cold('--b', { b: todoErrorAction(error) });
         expect(effects.updateDescription$)
+            .withContext('The error action should be raised after having wait for 10 + 10 frames')
+            .toBeObservable(expected);
+    });
+
+    it('should return a stream with the success action createTodoSuccessAction (containing the Todo)', () => {
+        const partialTodo = { title: 'Title', state: 'UNDONE', description: 'Description' } as Todo;
+        const receivedTodoFromBackend: Todo = cloneTodo(partialTodo);
+        receivedTodoFromBackend.id = 3;
+
+        actions$ = hot('-a', { a: createTodoAction({ todo: partialTodo }) });
+        const response = cold('-a|', { a: receivedTodoFromBackend });
+        todoServiceSpy.create.and.returnValue(response);
+
+        const expected = cold('--b', { b: createTodoSuccessAction(receivedTodoFromBackend) });
+        expect(effects.createTodo$)
+            .withContext('The success action should be raised after having wait for 10 + 10 frames')
+            .toBeObservable(expected);
+    });
+
+    it('should return a stream with the error action todoErrorAction (containing the createTodoAction error)', () => {
+        const partialTodo = { title: 'Title', state: 'UNDONE', description: 'Description' } as Todo;
+        const error = new Error('Error occurred processing createTodoAction !!!');
+
+        actions$ = hot('-a', { a: createTodoAction({ todo: partialTodo }) });
+        const response = cold('-#|', {}, error);
+        todoServiceSpy.create.and.returnValue(response);
+
+        const expected = cold('--b', { b: todoErrorAction(error) });
+        expect(effects.createTodo$)
             .withContext('The error action should be raised after having wait for 10 + 10 frames')
             .toBeObservable(expected);
     });
