@@ -1,7 +1,7 @@
 import { todoReducer } from './todo.reducer';
 import {
     todoErrorAction, getTodoListSuccessAction, getDetailedTodoSuccessAction, toggleCompleteSuccessAction,
-    updateTitleSuccessAction, updateDescriptionSuccessAction, createTodoSuccessAction
+    updateTitleSuccessAction, updateDescriptionSuccessAction, createTodoSuccessAction, deleteTodoSuccessAction
 } from './todo.actions';
 import { Todo } from '../model/todo.model';
 
@@ -140,7 +140,7 @@ describe('TodoReducer', () => {
         });
     });
 
-    it('should update State with the second new Todo', () => {
+    it('should update State with a third new Todo', () => {
         const state1 = {
             todoList: [
                 { id: 0, title: 'Task A', state: 'UNDONE', description: 'Description A', creationDate: new Date() },
@@ -149,13 +149,91 @@ describe('TodoReducer', () => {
             detailedTodo: null,
             todoError: null
         };
-        const newTodo = { id: 0, title: 'Task A', state: 'UNDONE', description: 'Description A', creationDate: new Date() };
 
+        const newTodo = { title: 'Task C', state: 'UNDONE', description: 'Description C', creationDate: new Date() };
         const state2 = todoReducer(state1, createTodoSuccessAction({ todo: newTodo as Todo }));
 
         expect(state2).toEqual({
             ...state1,
             todoList: [...state1.todoList, newTodo]
+        });
+    });
+
+    it('should update State with a deleted Todo', () => {
+        const todoA = { id: 10, title: 'Task A', state: 'UNDONE', description: 'Description A', creationDate: new Date() };
+        const todoB = { id: 11, title: 'Task B', state: 'DONE', description: 'Description B', creationDate: new Date() };
+        const todoC = { id: 12, title: 'Task C', state: 'DONE', description: 'Description C', creationDate: new Date() };
+        const state1 = {
+            todoList: [todoA, todoB, todoC] as Array<Todo>,
+            detailedTodo: null,
+            todoError: null
+        };
+
+        // Delete todoB in the middle of the array (index 1)
+        const testedTabIndex = 1;
+        const state2 = todoReducer(state1, deleteTodoSuccessAction({ tabIndex: testedTabIndex }));
+
+        expect(state2).toEqual({
+            ...state1,
+            todoList: [todoA, todoC]
+        });
+    });
+
+    it('should update State with a deleted Todo (the first in the list)', () => {
+        const todoA = { id: 10, title: 'Task A', state: 'UNDONE', description: 'Description A', creationDate: new Date() };
+        const todoB = { id: 11, title: 'Task B', state: 'DONE', description: 'Description B', creationDate: new Date() };
+        const todoC = { id: 12, title: 'Task C', state: 'DONE', description: 'Description C', creationDate: new Date() };
+        const state1 = {
+            todoList: [todoA, todoB, todoC] as Array<Todo>,
+            detailedTodo: null,
+            todoError: null
+        };
+
+        // Delete todoA in the first position of the array (index 0)
+        const testedTabIndex = 0;
+        const state2 = todoReducer(state1, deleteTodoSuccessAction({ tabIndex: testedTabIndex }));
+
+        expect(state2).toEqual({
+            ...state1,
+            todoList: [todoB, todoC]
+        });
+    });
+
+    it('should update State with a deleted Todo (the last in the list)', () => {
+        const todoA = { id: 10, title: 'Task A', state: 'UNDONE', description: 'Description A', creationDate: new Date() };
+        const todoB = { id: 11, title: 'Task B', state: 'DONE', description: 'Description B', creationDate: new Date() };
+        const todoC = { id: 12, title: 'Task C', state: 'DONE', description: 'Description C', creationDate: new Date() };
+        const state1 = {
+            todoList: [todoA, todoB, todoC] as Array<Todo>,
+            detailedTodo: null,
+            todoError: null
+        };
+
+        // Delete todoA in the last position of the array (index 2)
+        const testedTabIndex = 2;
+        const state2 = todoReducer(state1, deleteTodoSuccessAction({ tabIndex: testedTabIndex }));
+
+        expect(state2).toEqual({
+            ...state1,
+            todoList: [todoA, todoB]
+        });
+    });
+
+    it('should update State with all Todos deleted Todo', () => {
+        const todoA = { id: 10, title: 'Task A', state: 'UNDONE', description: 'Description A', creationDate: new Date() };
+        const state1 = {
+            todoList: [todoA] as Array<Todo>,
+            detailedTodo: null,
+            todoError: null
+        };
+
+        // Delete todoA which is the lonely Todo of the array (index 0)
+        const testedTabIndex = 0;
+        const state2 = todoReducer(state1, deleteTodoSuccessAction({ tabIndex: testedTabIndex }));
+
+        expect(state2).toEqual({
+            ...state1,
+            todoList: []
         });
     });
 

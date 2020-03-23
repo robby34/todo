@@ -7,7 +7,8 @@ import {
     toggleCompleteAction, toggleCompleteSuccessAction,
     updateTitleAction, updateTitleSuccessAction,
     updateDescriptionAction, updateDescriptionSuccessAction,
-    createTodoAction, createTodoSuccessAction
+    createTodoAction, createTodoSuccessAction,
+    deleteTodoAction, deleteTodoSuccessAction
 } from './todo.actions';
 import { switchMap, catchError, map, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -81,6 +82,16 @@ export class TodoEffects {
         switchMap(action => this.todoService.create(action.todo)
             .pipe(
                 map(todo => createTodoSuccessAction({ todo })),
+                catchError((error: Error) => of(todoErrorAction({ error })))
+            )
+        ))
+    );
+
+    deleteTodo$ = createEffect(() => this.actions$.pipe(
+        ofType(deleteTodoAction),
+        switchMap(action => this.todoService.delete(action.todoId)
+            .pipe(
+                map(() => deleteTodoSuccessAction({ tabIndex: action.tabIndex })),
                 catchError((error: Error) => of(todoErrorAction({ error })))
             )
         ))

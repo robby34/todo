@@ -8,23 +8,29 @@
 
 .mat-card.todo-list .mat-checkbox {
     position: absolute;
-    top:13px;
-    left:13px;
+    top: 13px;
+    left: 13px;
     z-index: 1;
 }
 
-.mat-card.todo-list span.todo-title {
+.mat-card.todo-list span#title {
     margin-left: 2em;
 }
-.mat-card.todo-list span.todo-creation-date {
+.mat-card.todo-list span#creation-date {
     font-style: italic;
     font-size: small;
     position: absolute;
-    right: 5%;
+    right: 6em;
 }
 
-.mat-card.todo-list span.todo-title.done,
-.mat-card.todo-list span.todo-creation-date.done {
+.mat-card.todo-list span#title.done,
+.mat-card.todo-list span#creation-date.done {
     text-decoration: line-through;
     opacity: 0.7;
+}
+
+.mat-card.todo-list button#delete {
+    position: absolute;
+    top: 4px;
+    right: 1em;
 }

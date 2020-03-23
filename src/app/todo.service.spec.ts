@@ -127,4 +127,20 @@ describe('TodoService', () => {
       .toEqual(mockedTodoFromBackend);
   });
 
+  it('sould return an Observable when want to delete a Todo', () => {
+    // Call the service
+    let responseReceived = false;
+    todoService.delete(2).subscribe(() => responseReceived = true);
+
+    // Assert HTTP request has been called
+    const request: TestRequest = http.expectOne(`${environment.baseUrl}/api/todos/2`);
+
+    // Resolve the request by returning success (without body)
+    request.flush(null);
+
+    expect(responseReceived)
+      .withContext('The subscription to the `delete` Observable should send an HTTP request')
+      .toBeTruthy();
+  });
+
 });

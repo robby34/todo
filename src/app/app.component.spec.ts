@@ -20,6 +20,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AddComponent } from './add/add.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 describe('AppComponent', () => {
 
@@ -38,7 +39,7 @@ describe('AppComponent', () => {
       .configureTestingModule({
         imports: [
           BrowserAnimationsModule, MatToolbarModule, MatCardModule, MatCheckboxModule, MatListModule, MatSnackBarModule, MatIconModule,
-          MatFormFieldModule, MatInputModule, ReactiveFormsModule,
+          MatTooltipModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule,
           RouterTestingModule, HttpClientTestingModule],
         declarations: [AppComponent, TodoListComponent, ErrorSnackbarComponent, AddComponent],
         providers: [

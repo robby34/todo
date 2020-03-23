@@ -8,7 +8,8 @@ import {
     updateTitleAction, updateTitleSuccessAction,
     updateDescriptionAction, updateDescriptionSuccessAction,
     createTodoAction, createTodoSuccessAction,
-    todoErrorAction
+    todoErrorAction,
+    deleteTodoAction, deleteTodoSuccessAction
 } from './todo.actions';
 import { Observable, of } from 'rxjs';
 import { Action } from '@ngrx/store';
@@ -23,7 +24,7 @@ describe('TodoEffects', () => {
     let todoServiceSpy: jasmine.SpyObj<TodoService>;
 
     beforeEach(() => {
-        const spy = jasmine.createSpyObj('TodoService', ['list', 'update', 'getTodo', 'create']);
+        const spy = jasmine.createSpyObj('TodoService', ['list', 'update', 'getTodo', 'create', 'delete']);
 
         TestBed.configureTestingModule({
             providers: [
@@ -232,6 +233,30 @@ describe('TodoEffects', () => {
 
         const expected = cold('--b', { b: todoErrorAction({ error }) });
         expect(effects.createTodo$)
+            .withContext('The error action should be raised after having wait for 10 + 10 frames')
+            .toBeObservable(expected);
+    });
+
+    it('should return a stream with the success action deleteTodoSuccessAction (containing the tab index of the deleted Todo)', () => {
+        actions$ = hot('-a', { a: deleteTodoAction({ todoId: 2, tabIndex: 5 }) });
+        const response = cold('-a|', {});
+        todoServiceSpy.delete.and.returnValue(response);
+
+        const expected = cold('--b', { b: deleteTodoSuccessAction({ tabIndex: 5 }) });
+        expect(effects.deleteTodo$)
+            .withContext('The success action should be raised after having wait for 10 + 10 frames')
+            .toBeObservable(expected);
+    });
+
+    it('should return a stream with the error action todoErrorAction (containing the deleteTodoAction error)', () => {
+        const error = new Error('Error occurred processing deleteTodoAction !!!');
+
+        actions$ = hot('-a', { a: deleteTodoAction({ todoId: 2, tabIndex: 5 }) });
+        const response = cold('-#|', {}, error);
+        todoServiceSpy.delete.and.returnValue(response);
+
+        const expected = cold('--b', { b: todoErrorAction({ error }) });
+        expect(effects.deleteTodo$)
             .withContext('The error action should be raised after having wait for 10 + 10 frames')
             .toBeObservable(expected);
     });

@@ -12,6 +12,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
@@ -45,7 +46,7 @@ import { AddComponent } from './add/add.component';
     HttpClientInMemoryWebApiModule.forRoot(InMemoryTodoService, { delay: 150 }),
     FormsModule, ReactiveFormsModule,
     BrowserAnimationsModule, MatToolbarModule, MatCardModule, MatListModule, MatCheckboxModule, MatButtonModule, MatSnackBarModule,
-    MatIconModule, MatFormFieldModule, MatInputModule
+    MatIconModule, MatTooltipModule, MatFormFieldModule, MatInputModule
   ],
   declarations: [
     AppComponent,

@@ -3,7 +3,7 @@ import { AppState } from '../model/todo.state';
 import { Store, select } from '@ngrx/store';
 import { Todo, cloneTodo } from '../model/todo.model';
 import { Observable, Subscription } from 'rxjs';
-import { getTodoListAction, toggleCompleteAction } from '../ngrx/todo.actions';
+import { getTodoListAction, toggleCompleteAction, deleteTodoAction } from '../ngrx/todo.actions';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { getTodoList, getTodoError } from '../ngrx/todo.selectors';
 
@@ -41,6 +41,10 @@ export class TodoListComponent implements OnInit {
     clonedTodo.state = event.checked ? 'DONE' : 'UNDONE';
     // Dispatch NgRx Action
     this.store.dispatch(toggleCompleteAction({ todo: clonedTodo }));
+  }
+
+  delete(todoId: number, tabIndex: number) {
+    this.store.dispatch(deleteTodoAction({ todoId, tabIndex }));
   }
 
 }

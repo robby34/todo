@@ -1,14 +1,18 @@
 <div *ngIf="todoList$ | async as todos">
     <todo-add></todo-add>
-    <mat-card class="todo-list" *ngFor="let todo of todos">
+    <mat-card class="todo-list" *ngFor="let todo of todos; index as tabIndex">
         <mat-nav-list>
             <mat-checkbox (change)="toggleComplete($event, todo)" [checked]="todo.state==='DONE'" #checkbox></mat-checkbox>
             <mat-list-item [routerLink]="['/todos', todo.id]">
-                <span class="todo-title" [ngClass]="{'done':checkbox.checked}">{{ todo.title }}</span>
-                <span class="todo-creation-date" [ngClass]="{'done':checkbox.checked}" *ngIf="todo.creationDate">
+                <span id="title" [ngClass]="{'done':checkbox.checked}">{{ todo.title }}</span>
+                <span id="creation-date" [ngClass]="{'done':checkbox.checked}" *ngIf="todo.creationDate">
                     [created on {{ todo.creationDate | date:'longDate' }}]
                 </span>
             </mat-list-item>
+            <button id="delete" mat-icon-button color="warn" (click)="delete(todo.id, tabIndex)"
+                matTooltip="Delete definitively the Todo" [matTooltipShowDelay]="300">
+                <mat-icon>delete_forever</mat-icon>
+            </button>
         </mat-nav-list>
     </mat-card>
 </div>

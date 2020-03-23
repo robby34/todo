@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppState } from '../model/todo.state';
 import { Store } from '@ngrx/store';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 describe('AddComponent', () => {
 
@@ -24,7 +25,7 @@ describe('AddComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [BrowserAnimationsModule, MatFormFieldModule, MatInputModule, MatIconModule, ReactiveFormsModule],
+      imports: [BrowserAnimationsModule, MatFormFieldModule, MatInputModule, MatIconModule, MatTooltipModule, ReactiveFormsModule],
       declarations: [AddComponent],
       providers: [
         provideMockStore({ initialState })
@@ -63,7 +64,37 @@ describe('AddComponent', () => {
     expect(buttonElement).toBeFalsy();
   });
 
-  it('should dispatch the action createTodoAction when click on the button', () => {
+  it('should dispatch the action createTodoAction when click on the button for a new Todo', () => {
+    // Set a State having 1 Todo
+    const nextState: AppState = {
+      todoList: [{ id: 1, title: 'Task A', state: 'UNDONE', description: 'Desc A', creationDate: new Date() }],
+      detailedTodo: null,
+      todoError: null
+    };
+    mockStore.setState({ todos: nextState });
+    mockStore.refreshState();
+    fixture.detectChanges();
+
+    // Prove that for the moment, no dispatch have been done
+    expect(mockStore.dispatch).toHaveBeenCalledTimes(0);
+
+    // Enter a title for the new Todo
+    component.titleCtrl.setValue('Write the first Task');
+    fixture.detectChanges();
+
+    // Click on the button
+    fixture.nativeElement.querySelector('button').click();
+    fixture.detectChanges();
+
+    // Check the Store has been called for dispatch action
+    expect(mockStore.dispatch).toHaveBeenCalledTimes(1);
+
+    // TODO : Try to check the dispatch method had been called with the createTodoAction function, something like:
+    // const expectedTodo: Todo = { id: undefined, title: 'Write the first Task', state: 'UNDONE', creationDate: jasmine.any(Date) };
+    // expect(mockStore.dispatch).toHaveBeenCalledWith(createTodoAction({ todo: expectedTodo }));
+  });
+
+  it('should dispatch the action createTodoAction when click on the button for the first new Todo', () => {
     // Prove that for the moment, no dispatch have been done
     expect(mockStore.dispatch).toHaveBeenCalledTimes(0);
 

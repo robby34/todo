@@ -10,7 +10,7 @@ import { AppState, substractDays } from '../model/todo.state';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Store, Action } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { getTodoListAction, toggleCompleteAction } from '../ngrx/todo.actions';
+import { getTodoListAction, toggleCompleteAction, deleteTodoAction } from '../ngrx/todo.actions';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Todo, cloneTodo } from '../model/todo.model';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -19,6 +19,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AddComponent } from '../add/add.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 describe('TodoListComponent', () => {
 
@@ -37,7 +38,7 @@ describe('TodoListComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
-        BrowserAnimationsModule, MatToolbarModule, MatCardModule, MatCheckboxModule, MatListModule, MatIconModule,
+        BrowserAnimationsModule, MatToolbarModule, MatCardModule, MatCheckboxModule, MatListModule, MatIconModule, MatTooltipModule,
         MatFormFieldModule, MatInputModule, ReactiveFormsModule,
         FormsModule, RouterTestingModule, HttpClientTestingModule],
       declarations: [TodoListComponent, AddComponent],
@@ -185,6 +186,28 @@ describe('TodoListComponent', () => {
     expect(items[4].textContent).toContain('task G');
     expect(items[5].textContent).toContain('task D');
     expect(items[6].textContent).toContain('task B');
+  });
+
+  it('should dispatch the action deleteTodoAction when click on the trash icon button of a Todo', () => {
+    // Set a State having 2 Todos
+    const nextState: AppState = {
+      todoList: [
+        { id: 10, title: 'My first task', state: 'UNDONE', description: 'Desc A', creationDate: new Date() },
+        { id: 11, title: 'A new task', state: 'DONE', description: 'Desc B', creationDate: new Date() },
+        { id: 12, title: 'Again a new task', state: 'DONE', description: 'Desc C', creationDate: new Date() }
+      ],
+      detailedTodo: null,
+      todoError: null
+    };
+    mockStore.setState({ todos: nextState });
+    mockStore.refreshState();
+    fixture.detectChanges();
+
+    // Click the trash icon button of the second Todo (index 1 in the todoList array)
+    fixture.nativeElement.querySelectorAll('button#delete')[1].click();
+    fixture.detectChanges();
+
+    expect(mockStore.dispatch).toHaveBeenCalledWith(deleteTodoAction({ todoId: 11, tabIndex: 1 }));
   });
 
 });

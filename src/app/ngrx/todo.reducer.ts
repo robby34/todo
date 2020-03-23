@@ -2,10 +2,9 @@ import { createReducer, on, Action } from '@ngrx/store';
 import {
     todoErrorAction, getTodoListSuccessAction, getDetailedTodoSuccessAction,
     toggleCompleteSuccessAction, updateTitleSuccessAction, updateDescriptionSuccessAction,
-    createTodoSuccessAction
+    createTodoSuccessAction, deleteTodoSuccessAction
 } from './todo.actions';
 import { AppState } from '../model/todo.state';
-import { Todo } from '../model/todo.model';
 
 const reducer = createReducer(
     // Initialize our State with all fields set to null
@@ -90,6 +89,17 @@ const reducer = createReducer(
                 state.todoList ?
                     [...state.todoList, todo] :
                     [todo],
+            todoError: null
+        });
+    }),
+
+    on(deleteTodoSuccessAction, (state: AppState, { tabIndex }) => {
+        return ({
+            ...state,
+            todoList: [
+                ...state.todoList.slice(0, tabIndex),
+                ...state.todoList.slice(tabIndex + 1, state.todoList.length)
+            ],
             todoError: null
         });
     })

@@ -19,6 +19,15 @@ export const getTodoList = createSelector(
     }
 );
 
+export const getCountTodoList = createSelector(
+    selectTodoList,
+    (todos: Array<Todo>) => {
+        const count: number = todos ? todos.length : 0;
+        console.log('Selector getCountTodoList is notified for a new State on state.todos.todoList > number of Todo = ' + count);
+        return count;
+    }
+);
+
 export const getDetailedTodo = createSelector(
     selectDetailedTodo,
     (todo: Todo) => {

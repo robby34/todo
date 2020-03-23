@@ -30,3 +30,7 @@ export const updateDescriptionSuccessAction = createAction('[Todo] - Update desc
 // "Create Todo" actions
 export const createTodoAction = createAction('[Todo] - Create Todo', props<{ todo: Todo }>());
 export const createTodoSuccessAction = createAction('[Todo] - Create Todo success', props<{ todo: Todo }>());
+
+// "Delete Todo" actions
+export const deleteTodoAction = createAction('[Todo] - Delete Todo', props<{ todoId: number, tabIndex: number }>());
+export const deleteTodoSuccessAction = createAction('[Todo] - Delete Todo success', props<{ tabIndex: number }>());

@@ -27,4 +27,8 @@ export class TodoService {
     return this.http.post<Todo>(`${environment.baseUrl}/api/todos`, newTodo);
   }
 
+  delete(todoId: number): Observable<void> {
+    return this.http.delete<void>(`${environment.baseUrl}/api/todos/${todoId}`);
+  }
+
 }
