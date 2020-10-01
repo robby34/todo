@@ -1,3 +1,17 @@
+<div class="navigate-bar" *ngIf="todo && todoList">
+    <button id="previous" (click)="previousTodo()" [disabled]="isFirstTodo()"
+        mat-stroked-button color="primary" matTooltip="Previous Todo" [matTooltipShowDelay]="300">&nbsp;
+        <mat-icon>arrow_back_ios</mat-icon>
+    </button>
+    <button id="todoList" routerLink="/"
+        mat-stroked-button color="primary" matTooltip="Go back to the Todo list" [matTooltipShowDelay]="300">
+        <mat-icon>list</mat-icon>
+    </button>
+    <button id="next" (click)="nextTodo()" [disabled]="isLastTodo()"
+        mat-stroked-button color="primary" matTooltip="Next Todo" [matTooltipShowDelay]="300">
+        <mat-icon>arrow_forward_ios</mat-icon>
+    </button>
+</div>
 <div class="detailed-todo-container" *ngIf="todo">
     <mat-card>
         <mat-card-header class="todo-detailed">
