@@ -10,21 +10,25 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { AppState } from '../model/todo.state';
-import { Observable } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { Store, Action } from '@ngrx/store';
-import { getDetailedTodoAction, toggleCompleteAction, updateTitleAction, updateDescriptionAction } from '../ngrx/todo.actions';
-import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import {
+  getDetailedTodoAction, toggleCompleteAction, updateTitleAction, updateDescriptionAction, getTodoListAction
+} from '../ngrx/todo.actions';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { cloneTodo, Todo } from '../model/todo.model';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
+import { MatIconModule, MatTooltipModule } from '@angular/material';
 
 describe('TodoComponent', () => {
 
   const testedTodoId = 1;
   const activatedRoute = {
-    snapshot: { paramMap: convertToParamMap({ todoId: testedTodoId }) }
+    // snapshot: { paramMap: convertToParamMap({ todoId: testedTodoId }) },
+    paramMap: from([convertToParamMap({ todoId: testedTodoId })])
   };
   const initialState = {
     todos: {
@@ -40,14 +44,16 @@ describe('TodoComponent', () => {
   let fixture: ComponentFixture<TodoComponent>;
   let mockStore: MockStore<{ todos: AppState }>;
   const actions$: Observable<Action> = null;
+  const fakeRouter = jasmine.createSpyObj<Router>('Router', ['navigate']);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [BrowserAnimationsModule, MatToolbarModule, MatCardModule, MatCheckboxModule, MatListModule,
-        RouterTestingModule, HttpClientTestingModule, MatFormFieldModule, MatInputModule, FormsModule],
+        RouterTestingModule, HttpClientTestingModule, MatFormFieldModule, MatInputModule, FormsModule, MatIconModule, MatTooltipModule],
       declarations: [TodoComponent],
       providers: [
         { provide: ActivatedRoute, useValue: activatedRoute },
+        { provide: Router, useValue: fakeRouter },
         provideMockStore({ initialState }),
         provideMockActions(() => actions$),
       ]
@@ -66,6 +72,8 @@ describe('TodoComponent', () => {
   });
 
   it('should dispatch the action getDetailedTodo on init, with the received Route param (todoId)', () => {
+    expect(mockStore.dispatch).toHaveBeenCalledTimes(2);
+    expect(mockStore.dispatch).toHaveBeenCalledWith(getTodoListAction());
     expect(mockStore.dispatch).toHaveBeenCalledWith(getDetailedTodoAction({ todoId: testedTodoId }));
   });
 
@@ -139,6 +147,69 @@ describe('TodoComponent', () => {
     fixture.detectChanges();
 
     expect(mockStore.dispatch).toHaveBeenCalledWith(updateDescriptionAction({ todo: component.todo }));
+  });
+
+  it('should navigate to the route of the previous Todo in the list', () => {
+    // Initial state: we are on the last Todo of the list => Next Todo button is then disabled
+    const previousButtonElement = fixture.nativeElement.querySelector('button#previous');
+    expect(previousButtonElement.disabled).toBeFalsy();
+    const nextButtonElement = fixture.nativeElement.querySelector('button#next');
+    expect(nextButtonElement.disabled).toBeTruthy();
+
+    // Click on the 'Previous Todo' navigation button
+    previousButtonElement.click();
+    fixture.detectChanges();
+
+    // Component shall navigate to the route of the previous Todo (id 0)
+    expect(fakeRouter.navigate).toHaveBeenCalledWith(['/todos', 0]);
+
+    // Force the click event on the 'Next Todo' navigation button (even if disabled...)
+    fakeRouter.navigate.calls.reset();
+    nextButtonElement.dispatchEvent(new Event('click'));
+    fixture.detectChanges();
+
+    expect(fakeRouter.navigate).not.toHaveBeenCalled();
+  });
+
+  it('should navigate to the route of the next Todo in the list', () => {
+    // Update the Store with a new State
+    const nextState: AppState = {
+      todoList: [
+        { id: 0, title: 'Task A', state: 'UNDONE', description: 'This is my first Task to do !!!', creationDate: new Date() },
+        { id: 1, title: 'SHOULD NOT BE DISPLAYED', state: 'DONE', description: ' SHOULD NOT BE DISPLAYED', creationDate: new Date() }
+      ],
+      detailedTodo: { id: 0, title: 'Task A', state: 'UNDONE', description: 'Description A', creationDate: new Date() },
+      todoError: null
+    };
+    mockStore.setState({ todos: nextState });
+    mockStore.refreshState();
+    fixture.detectChanges();
+
+    // Now we are on the first Todo of the list => Previous Todo button is then disabled
+    const previousButtonElement = fixture.nativeElement.querySelector('button#previous');
+    expect(previousButtonElement.disabled).toBeTruthy();
+    const nextButtonElement = fixture.nativeElement.querySelector('button#next');
+    expect(nextButtonElement.disabled).toBeFalsy();
+
+    // Click on the 'Next Todo' navigation button
+    nextButtonElement.click();
+    fixture.detectChanges();
+
+    // Component shall navigate to the route of the next Todo (id 1)
+    expect(fakeRouter.navigate).toHaveBeenCalledWith(['/todos', 1]);
+
+    // Force the click event on the 'Previous Todo' navigation button (even if disabled...)
+    fakeRouter.navigate.calls.reset();
+    previousButtonElement.dispatchEvent(new Event('click'));
+    fixture.detectChanges();
+
+    expect(fakeRouter.navigate).not.toHaveBeenCalled();
+  });
+
+  it('should have a "Go back to the Todo list" navigation button, with routerlink to the route "/"', () => {
+    const backButtonElement = fixture.nativeElement.querySelector('button#todoList[routerlink="/"]');
+    expect(backButtonElement).not.toBeNull();
+    expect(backButtonElement.disabled).toBeFalsy();
   });
 
 });
