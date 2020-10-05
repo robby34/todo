@@ -15,7 +15,7 @@ export const getDetailedTodoSuccessAction = createAction('[Todo] - Get detailed 
 // "Toggle complete Todo" actions
 export const toggleCompleteAction = createAction('[Todo] - Toggle complete Todo', props<{ todo: Todo }>());
 export const toggleCompleteSuccessAction = createAction('[Todo] - Toggle complete Todo success',
-    props<{ todoId: number, todoState: 'DONE' | 'UNDONE' }>());
+    props<{ todoId: number, todoState: 'DONE' | 'UNDONE', todoDoneDate: Date }>());
 
 // "Update title" actions
 export const updateTitleAction = createAction('[Todo] - Update title', props<{ todo: Todo }>());

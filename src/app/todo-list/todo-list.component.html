@@ -5,8 +5,11 @@
             <mat-checkbox (change)="toggleComplete($event, todo)" [checked]="todo.state==='DONE'" #checkbox></mat-checkbox>
             <mat-list-item [routerLink]="['/todos', todo.id]">
                 <span id="title" [ngClass]="{'done':checkbox.checked}">{{ todo.title }}</span>
-                <span id="creation-date" [ngClass]="{'done':checkbox.checked}" *ngIf="todo.creationDate">
+                <span id="date" *ngIf="!checkbox.checked && todo.creationDate">
                     [created on {{ todo.creationDate | date:'longDate' }}]
+                </span>
+                <span id="date" *ngIf="checkbox.checked && todo.doneDate" class="done">
+                    [done on {{ todo.doneDate | date:'longDate' }}]
                 </span>
             </mat-list-item>
             <button id="delete" mat-icon-button color="warn" (click)="delete(todo.id, tabIndex)"

@@ -86,13 +86,15 @@ describe('TodoEffects', () => {
         ];
         const clonedTodo = cloneTodo(fakeTodos[1]);
         clonedTodo.state = 'DONE';
+        clonedTodo.doneDate = new Date();
 
         // Prepare the stream raising the toggleCompleteAction with the Todo of id 1 in param (Todo is cloned as it is in the component)
         actions$ = hot('-a', { a: toggleCompleteAction({ todo: clonedTodo }) });
         const response = cold('-a|', {});
         todoServiceSpy.update.and.returnValue(response);
 
-        const expected = cold('--b', { b: toggleCompleteSuccessAction({ todoId: 1, todoState: 'DONE' }) });
+        const expected =
+            cold('--b', { b: toggleCompleteSuccessAction({ todoId: 1, todoState: 'DONE', todoDoneDate: clonedTodo.doneDate }) });
         expect(effects.toggleCompleteTodo$)
             .withContext('The success action should be raised after having wait for 10 + 10 frames')
             .toBeObservable(expected);
@@ -112,13 +114,13 @@ describe('TodoEffects', () => {
     });
 
     it('should only react for action toggleCompleteAction', () => {
-        const modifiedTodo: Todo = { id: 0, title: 'A task', state: 'DONE' };
+        const modifiedTodo: Todo = { id: 0, title: 'A task', state: 'UNDONE' };
 
         actions$ = hot('-x--a', { x: { type: 'Whatever Action' }, a: toggleCompleteAction({ todo: modifiedTodo }) });
         const response = cold('-a|', {});
         todoServiceSpy.update.and.returnValue(response);
 
-        const expected = cold('-----b', { b: toggleCompleteSuccessAction({ todoId: 0, todoState: 'DONE' }) });
+        const expected = cold('-----b', { b: toggleCompleteSuccessAction({ todoId: 0, todoState: 'UNDONE', todoDoneDate: undefined }) });
         expect(effects.toggleCompleteTodo$).toBeObservable(expected);
     });
 

@@ -16,7 +16,7 @@ import {
   getDetailedTodoAction, toggleCompleteAction, updateTitleAction, updateDescriptionAction, getTodoListAction
 } from '../ngrx/todo.actions';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
-import { cloneTodo, Todo } from '../model/todo.model';
+import { Todo } from '../model/todo.model';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
@@ -34,9 +34,12 @@ describe('TodoComponent', () => {
     todos: {
       todoList: [
         { id: 0, title: 'Task A', state: 'UNDONE', description: 'This is my first Task to do !!!', creationDate: new Date() },
-        { id: 1, title: 'SHOULD NOT BE DISPLAYED', state: 'DONE', description: ' SHOULD NOT BE DISPLAYED', creationDate: new Date() }
+        {
+          id: 1, title: 'SHOULD NOT BE DISPLAYED', state: 'DONE', description: ' SHOULD NOT BE DISPLAYED', creationDate: new Date(),
+          doneDate: new Date()
+        }
       ],
-      detailedTodo: { id: 1, title: 'Task B', state: 'DONE', description: 'Description B', creationDate: new Date() },
+      detailedTodo: { id: 1, title: 'Task B', state: 'DONE', description: 'Description B', creationDate: new Date(), doneDate: new Date() },
       todoError: null
     }
   };
@@ -99,9 +102,10 @@ describe('TodoComponent', () => {
     fixture.nativeElement.querySelector('.mat-checkbox-input').click();
     fixture.detectChanges();
 
-    const clonedTodo = cloneTodo(doneTodo);
-    clonedTodo.state = 'UNDONE';
-    expect(mockStore.dispatch).toHaveBeenCalledWith(toggleCompleteAction({ todo: clonedTodo }));
+    // The Todo in argument of the Action shall have a reset doneDate (undefined)
+    expect(mockStore.dispatch).toHaveBeenCalledWith(
+      toggleCompleteAction({ todo: { ...doneTodo, state: 'UNDONE', dueDate: undefined, doneDate: undefined } })
+    );
   });
 
   it('should dispatch the action toggleCompleteAction when tick the checkbox of an UNDONE Todo', () => {
@@ -122,9 +126,13 @@ describe('TodoComponent', () => {
     fixture.nativeElement.querySelector('.mat-checkbox-input').click();
     fixture.detectChanges();
 
-    const clonedTodo = cloneTodo(undoneTodo);
-    clonedTodo.state = 'DONE';
-    expect(mockStore.dispatch).toHaveBeenCalledWith(toggleCompleteAction({ todo: clonedTodo }));
+    // TODO : We now have a problem to test toggleCompleteAction method arguments (because of doneDate) => idem as in add.component.spec.ts
+    // expect(mockStore.dispatch).toHaveBeenCalledWith(
+    //   toggleCompleteAction({ todo: { ...undoneTodo, state: 'DONE', dueDate: undefined, doneDate: ??? } })
+    // );
+
+    // 1st call is getTodoListAction, 2d is for getDetailedTodoAction, and then we have the call for toggleCompleteAction
+    expect(mockStore.dispatch).toHaveBeenCalledTimes(3);
   });
 
   it('should dispatch the action updateTitleAction when the title is changed from the UI', () => {
@@ -176,7 +184,10 @@ describe('TodoComponent', () => {
     const nextState: AppState = {
       todoList: [
         { id: 0, title: 'Task A', state: 'UNDONE', description: 'This is my first Task to do !!!', creationDate: new Date() },
-        { id: 1, title: 'SHOULD NOT BE DISPLAYED', state: 'DONE', description: ' SHOULD NOT BE DISPLAYED', creationDate: new Date() }
+        {
+          id: 1, title: 'SHOULD NOT BE DISPLAYED', state: 'DONE', description: ' SHOULD NOT BE DISPLAYED', creationDate: new Date(),
+          doneDate: new Date()
+        }
       ],
       detailedTodo: { id: 0, title: 'Task A', state: 'UNDONE', description: 'Description A', creationDate: new Date() },
       todoError: null

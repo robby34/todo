@@ -84,6 +84,7 @@ export class TodoComponent implements OnInit, OnDestroy {
     // Build a cloned Todo with the new state DONE/UNDONE to be pushed to the backend
     const clonedTodo = cloneTodo(todo);
     clonedTodo.state = event.checked ? 'DONE' : 'UNDONE';
+    clonedTodo.doneDate = event.checked ? new Date() : undefined;
     // Dispatch NgRx Action
     this.store.dispatch(toggleCompleteAction({ todo: clonedTodo }));
   }

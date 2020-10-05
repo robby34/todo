@@ -36,7 +36,8 @@ export class InMemoryTodoService implements InMemoryDbService {
         title: 'Apprendre NgRx',
         state: 'DONE',
         description: this.desc1,
-        creationDate: substractDays(new Date(), 5)
+        creationDate: substractDays(new Date(), 5),
+        doneDate: substractDays(new Date(), 1)
       },
       {
         id: 2,

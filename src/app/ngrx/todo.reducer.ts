@@ -19,14 +19,14 @@ const reducer = createReducer(
     on(getDetailedTodoSuccessAction, (state: AppState, { todo }) =>
         ({ ...state, detailedTodo: todo, todoError: null })),
 
-    on(toggleCompleteSuccessAction, (state: AppState, { todoId, todoState }) => {
+    on(toggleCompleteSuccessAction, (state: AppState, { todoId, todoState, todoDoneDate }) => {
         return {
             ...state,
             todoList:
                 state.todoList ?
                     state.todoList.map(element => {
                         if (element.id === todoId) {
-                            return { ...element, state: todoState };
+                            return { ...element, state: todoState, doneDate: todoDoneDate };
                         } else {
                             return element;
                         }
@@ -34,7 +34,7 @@ const reducer = createReducer(
                     state.todoList,
             detailedTodo:
                 state.detailedTodo ?
-                    { ...state.detailedTodo, state: todoState } :
+                    { ...state.detailedTodo, state: todoState, doneDate: todoDoneDate } :
                     state.detailedTodo,
             todoError: null
         };

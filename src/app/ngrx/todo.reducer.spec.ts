@@ -49,22 +49,22 @@ describe('TodoReducer', () => {
             todoError: null
         };
 
-        const state2 = todoReducer(state1, toggleCompleteSuccessAction({ todoId: 1, todoState: 'UNDONE' }));
+        const state2 = todoReducer(state1, toggleCompleteSuccessAction({ todoId: 1, todoState: 'UNDONE', todoDoneDate: undefined }));
 
         expect(state2).toEqual({
             ...state1,
             todoList: state1.todoList.map(element => {
                 if (element.id === 1) {
-                    return { ...element, state: 'UNDONE' };
+                    return { ...element, state: 'UNDONE', doneDate: undefined };
                 }
                 return element;
             }),
-            detailedTodo: { ...state1.detailedTodo, state: 'UNDONE' }
+            detailedTodo: { ...state1.detailedTodo, state: 'UNDONE', doneDate: undefined }
         });
     });
 
     it('should return the previous state when toggle a Todo although there is no Todo (in the list and in detailed)', () => {
-        const newState = todoReducer(initState, toggleCompleteSuccessAction({ todoId: 1, todoState: 'UNDONE' }));
+        const newState = todoReducer(initState, toggleCompleteSuccessAction({ todoId: 1, todoState: 'UNDONE', todoDoneDate: undefined }));
 
         expect(newState).toEqual(initState);
     });

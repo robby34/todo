@@ -5,11 +5,18 @@ export interface Todo {
     description?: string;
     creationDate?: Date;
     dueDate?: Date;
+    doneDate?: Date;
 }
 
 export function compareTodo(a: Todo, b: Todo) {
     if (a.state === b.state) {
-        return new Date(b.creationDate ? b.creationDate : 0).getTime() - new Date(a.creationDate ? a.creationDate : 0).getTime();
+        if (a.state === 'UNDONE') {
+            // The UNDONE Todos are sorted chronologically according the creation date, most recent first
+            return new Date(b.creationDate ? b.creationDate : 0).getTime() - new Date(a.creationDate ? a.creationDate : 0).getTime();
+        } else {
+            // The DONE Todos are sorted chronologically according the done date, most recent last
+            return new Date(a.doneDate ? a.doneDate : 0).getTime() - new Date(b.doneDate ? b.doneDate : 0).getTime();
+        }
     } else if (a.state === 'DONE') {
         return 1;
     } else {
@@ -24,6 +31,7 @@ export function cloneTodo(todo: Todo): Todo {
         state: todo.state,
         description: todo.description,
         creationDate: todo.creationDate,
-        dueDate: todo.dueDate
+        dueDate: todo.dueDate,
+        doneDate: todo.doneDate
     };
 }
